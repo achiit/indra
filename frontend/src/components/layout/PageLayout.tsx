@@ -25,7 +25,7 @@ export function PageLayout() {
     <div className="flex flex-col h-screen overflow-hidden selection:bg-purple-500/30">
       {/* RESTRICTED SECURITY BANNER */}
       <div className="w-full bg-red-900/40 text-red-500 font-mono text-[10px] text-center pb-0.5 pt-1 border-b border-red-500/20 tracking-[0.2em] uppercase shrink-0 z-50 shadow-md">
-        [RESTRICTED — ANALYST USE ONLY — INDRA v1.0]
+        [RESTRICTED — ANALYST USE ONLY — INDRA v2]
       </div>
       
       <div className="flex flex-1 min-h-0 bg-[#0A0A0F] text-[#F4F4F5]">

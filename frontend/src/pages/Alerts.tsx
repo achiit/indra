@@ -5,6 +5,7 @@ import { AlertCard } from '@/components/cards/AlertCard'
 import { LoadingPulse } from '@/components/shared/LoadingPulse'
 import { CheckCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { IndraLogo } from '@/components/branding/IndraLogo'
 
 export function Alerts() {
   const { alerts, setAlerts, markRead, markAllRead: storeMarkAll } = useAlertStore()
@@ -19,8 +20,9 @@ export function Alerts() {
     <div className="p-6 max-w-4xl mx-auto h-full overflow-y-auto">
       <div className="flex justify-between items-end border-b border-[#2A2A3A] pb-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white mb-1 flex items-center gap-3">
-            Priority Alert Center
+          <h1 className="text-2xl font-bold tracking-tight text-white mb-1 flex items-center gap-3 flex-wrap">
+            <IndraLogo height={36} className="max-w-[5.5rem]" />
+            <span>Priority Alert Center</span>
           </h1>
           <p className="text-sm text-zinc-400">Monitoring real-time confidence decay across 498 edges</p>
         </div>

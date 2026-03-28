@@ -12,6 +12,7 @@ import { Database, Activity, AlertTriangle, ShieldAlert, Search } from 'lucide-r
 import { Button } from '@/components/ui/button'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getConfidenceColor } from '@/lib/utils'
+import { IndraLogo } from '@/components/branding/IndraLogo'
 
 export function WarRoom() {
   const [graph, setGraph] = useState<GraphData | null>(null)
@@ -128,7 +129,10 @@ export function WarRoom() {
       {/* Row 2: Graph */}
       <div className="flex-1 min-h-[400px] rounded-xl relative border border-[#2A2A3A] bg-[#0A0A0F] overflow-hidden shadow-lg">
         <div className="absolute top-4 left-4 z-10 w-72 pointer-events-none">
-          <h2 className="text-xl font-semibold tracking-tight text-white drop-shadow-md">Global Intelligence Graph</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-white drop-shadow-md flex items-center gap-2">
+            <IndraLogo height={28} className="max-w-[4.5rem]" />
+            <span>Global Intelligence Graph</span>
+          </h2>
           
           <div className="pointer-events-auto bg-[#16161F]/90 backdrop-blur-md border border-[#2A2A3A] rounded-lg p-3 mt-4 shadow-xl flex flex-col gap-3">
              <div className="relative">

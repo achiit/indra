@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
 import { loginApi } from '@/api/auth'
+import { IndraLogo } from '@/components/branding/IndraLogo'
 
 export function Login() {
   const [email, setEmail] = useState('')
@@ -42,11 +43,7 @@ export function Login() {
           transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
         />
         <div className="z-10 flex flex-col items-start max-w-lg">
-           <div className="relative w-16 h-16 rounded-full border-2 border-purple-500 overflow-hidden flex items-center justify-center mb-8">
-            <div className="w-5 h-5 rounded-full bg-purple-400 shadow-[0_0_15px_#a855f7]" />
-            <div className="absolute inset-0 bg-purple-400/20" />
-            <div className="absolute top-1/2 -left-2 w-20 h-0.5 bg-purple-500 transform -translate-y-1/2 rotate-45" />
-          </div>
+          <IndraLogo height={88} className="mb-8 drop-shadow-[0_0_24px_rgba(124,58,237,0.25)]" />
           <h1 className="text-5xl font-bold tracking-tight text-white mb-6 uppercase">
             INDRA v2<br/>Intelligence Engine
           </h1>
@@ -67,10 +64,7 @@ export function Login() {
           className="w-full max-w-sm"
         >
           <div className="mb-10 md:hidden flex items-center gap-4 border-b border-[#2A2A3A] pb-6">
-            <div className="relative w-8 h-8 rounded-full border border-purple-500 overflow-hidden flex items-center justify-center">
-              <div className="w-2 h-2 rounded-full bg-purple-400" />
-            </div>
-            <h1 className="text-xl font-bold tracking-widest text-white uppercase">INDRA</h1>
+            <IndraLogo height={40} />
           </div>
 
           <h2 className="text-2xl font-semibold text-white mb-2">Welcome Back</h2>

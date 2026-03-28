@@ -1,14 +1,20 @@
 """
 provider_router.py — INDRA v2 Multi-Provider LLM Router
 ========================================================
-Priority chain:
-  1. Google Gemini Flash  (GEMINI_API_KEY_1..4, 1500 req/day, no TPM cap)
-  2. Groq llama-3.1-8b   (GROQ_API_KEYS, 14400 req/day, 20k TPM)
-  3. Cerebras             (CEREBRAS_API_KEY, free)
-  4. OpenRouter → DeepSeek-V3 (OPENROUTER_API_KEY, free tier)
+Default try order: gemini → groq → cerebras → openrouter (only providers with keys).
 
-Drop-in replacement for groq_complete() / gemini_complete().
-LightRAG calls: router.complete(prompt, system_prompt, history_messages, **kwargs)
+Override order in .env:
+  INDRA_LLM_ORDER=groq,gemini,cerebras,openrouter
+
+Skip Gemini entirely (e.g. all keys 429):
+  GEMINI_DISABLED=1
+
+Providers:
+  - Gemini (GEMINI_API_KEY_1..4 / GEMINI_API_KEYS)
+  - Groq (GROQ_API_KEYS / GROQ_API_KEY; default llama-3.1-8b-instant)
+  - Cerebras, OpenRouter (optional)
+
+LightRAG: router.complete(prompt, system_prompt, history_messages, **kwargs)
 """
 
 import os
@@ -134,6 +140,28 @@ class GeminiProvider(Provider):
 
 # ── Groq provider ─────────────────────────────────────────────────────────────
 
+# Groq retires model ids periodically; map old .env values to current ids.
+# https://console.groq.com/docs/deprecations
+GROQ_DEFAULT_MODEL = "llama-3.1-8b-instant"
+GROQ_FALLBACK_MODEL = "llama-3.3-70b-versatile"
+
+GROQ_LEGACY_MODEL_MAP = {
+    "llama3-8b-8192": GROQ_DEFAULT_MODEL,
+    "llama3-70b-8192": GROQ_FALLBACK_MODEL,
+    "llama2-70b-4096": GROQ_FALLBACK_MODEL,
+    "mixtral-8x7b-32768": GROQ_FALLBACK_MODEL,
+    "gemma-7b-it": GROQ_DEFAULT_MODEL,
+}
+
+
+def _resolve_groq_model(raw: str) -> str:
+    m = (raw or "").strip()
+    if not m:
+        return GROQ_DEFAULT_MODEL
+    key = m.lower().replace(" ", "")
+    return GROQ_LEGACY_MODEL_MAP.get(key, m)
+
+
 class GroqProvider(Provider):
     name = "groq"
 
@@ -146,7 +174,12 @@ class GroqProvider(Provider):
                 keys = [k]
         self._keys = keys
         self._cycle = itertools.cycle(keys) if keys else None
-        self._model = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
+        env_model = os.getenv("GROQ_MODEL", "").strip()
+        self._model = _resolve_groq_model(env_model or GROQ_DEFAULT_MODEL)
+        if env_model and self._model != env_model.strip():
+            logger.warning(
+                f"[Groq] GROQ_MODEL={env_model!r} is legacy or unknown — using {self._model!r}"
+            )
         if keys:
             logger.info(f"[Groq] Loaded {len(keys)} key(s), model={self._model}")
         else:
@@ -198,6 +231,14 @@ class GroqProvider(Provider):
             except Exception as e:
                 last_exc = e
                 err = str(e).lower()
+                if "decommissioned" in err or "model_decommissioned" in err:
+                    alt = os.getenv("GROQ_FALLBACK_MODEL", GROQ_FALLBACK_MODEL)
+                    if self._model != alt:
+                        logger.warning(
+                            f"[Groq] model {self._model!r} rejected by API — switching to {alt!r}"
+                        )
+                        self._model = alt
+                        continue
                 if any(x in err for x in ("429", "413", "rate limit", "rate_limit")):
                     wait = 2 ** min(attempt, 4)
                     logger.warning(f"[Groq] rate-limited (attempt {attempt+1}), retry in {wait}s")
@@ -300,6 +341,29 @@ class OpenRouterProvider(Provider):
 
 # ── Router ────────────────────────────────────────────────────────────────────
 
+_DEFAULT_LLM_ORDER = ("gemini", "groq", "cerebras", "openrouter")
+
+_PROVIDER_CLASSES: dict[str, type] = {
+    "gemini": GeminiProvider,
+    "groq": GroqProvider,
+    "cerebras": CerebrasProvider,
+    "openrouter": OpenRouterProvider,
+}
+
+
+def _llm_provider_order() -> list[str]:
+    """Comma-separated names from INDRA_LLM_ORDER; invalid tokens dropped."""
+    raw = os.getenv("INDRA_LLM_ORDER", "").strip()
+    if not raw:
+        return list(_DEFAULT_LLM_ORDER)
+    out: list[str] = []
+    for part in raw.split(","):
+        name = part.strip().lower()
+        if name in _PROVIDER_CLASSES and name not in out:
+            out.append(name)
+    return out if out else list(_DEFAULT_LLM_ORDER)
+
+
 class ProviderRouter:
     """
     Routes LLM calls through a priority provider chain with automatic
@@ -315,18 +379,35 @@ class ProviderRouter:
         from dotenv import load_dotenv
         load_dotenv()
 
-        self._providers: list[Provider] = []
-        for P in [GeminiProvider, GroqProvider, CerebrasProvider, OpenRouterProvider]:
-            p = P()
+        order = _llm_provider_order()
+        if os.getenv("GEMINI_DISABLED", "").strip().lower() in ("1", "true", "yes", "on"):
+            order = [n for n in order if n != "gemini"]
+            logger.info("[Router] GEMINI_DISABLED set — Gemini removed from chain")
+
+        instantiated: dict[str, Provider] = {}
+        for name, Pcls in _PROVIDER_CLASSES.items():
+            p = Pcls()
             if p.available_keys():
-                self._providers.append(p)
+                instantiated[name] = p
+
+        self._providers: list[Provider] = []
+        seen: set[str] = set()
+        for name in order:
+            if name in instantiated and name not in seen:
+                self._providers.append(instantiated[name])
+                seen.add(name)
+
+        if not self._providers:
+            for name in _DEFAULT_LLM_ORDER:
+                if name in instantiated:
+                    self._providers.append(instantiated[name])
 
         if not self._providers:
             raise RuntimeError(
                 "No LLM providers configured! Set at least GEMINI_API_KEY_1 or GROQ_API_KEY in .env"
             )
         logger.info(
-            f"[Router] Active providers: {[p.name for p in self._providers]}"
+            f"[Router] Call order (INDRA_LLM_ORDER): {[p.name for p in self._providers]}"
         )
 
     async def complete(

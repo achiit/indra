@@ -221,8 +221,19 @@ async def blast_radius_endpoint(body: dict):
     if not entity:
         return JSONResponse({"error": "entity is required"}, status_code=400)
 
+    logger.info(f"[BlastRadius] API request entity={entity!r} depth={depth}")
     try:
         result = await blast_radius_query(entity, depth=depth, llm_func=llm_complete)
+        if result.get("error"):
+            err_msg = str(result.get("error", ""))[:200]
+            logger.warning(
+                f"[BlastRadius] API response error for {entity!r}: {err_msg}"
+            )
+        else:
+            logger.info(
+                f"[BlastRadius] API ok entity={entity!r} paths={len(result.get('paths') or [])} "
+                f"mode={result.get('traversal_mode', '?')}"
+            )
         return result
     except Exception as e:
         logger.error(f"[BlastRadius] Error: {e}")
@@ -235,9 +246,14 @@ async def blast_radius_fast_endpoint(body: dict):
     if not entity:
         return JSONResponse({"error": "entity is required"}, status_code=400)
 
+    logger.info(f"[BlastRadiusFast] API request entity={entity!r}")
     try:
         # Omitting llm_func skips the LLM synthesis entirely for 20ms response times
         result = await blast_radius_query(entity, depth=3)
+        if result.get("error"):
+            logger.warning(
+                f"[BlastRadiusFast] error for {entity!r}: {str(result.get('error', ''))[:200]}"
+            )
         return result
     except Exception as e:
         logger.error(f"[BlastRadiusFast] Error: {e}")

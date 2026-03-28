@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Search, Map } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { runBlastRadius } from '@/api/blastRadius'
@@ -9,6 +9,7 @@ import { LoadingPulse } from '@/components/shared/LoadingPulse'
 import { KnowledgeGraph } from '@/components/graph/KnowledgeGraph'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { IndraLogo } from '@/components/branding/IndraLogo'
 
 export function BlastRadius() {
   const [query, setQuery] = useState('')
@@ -53,9 +54,10 @@ export function BlastRadius() {
       
       {/* Hero Header */}
       <div className={cn("transition-all duration-700 w-full flex flex-col items-center", result ? "mt-2 mb-6" : "mt-32 mb-12")}>
-        <div className="w-16 h-16 rounded-full border border-purple-500/30 bg-purple-500/10 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(124,58,237,0.15)]">
-          <ZapIcon size={32} className="text-purple-400" />
-        </div>
+        <IndraLogo
+          height={72}
+          className="mb-6 drop-shadow-[0_0_28px_rgba(124,58,237,0.2)]"
+        />
         <h1 className="text-3xl font-bold tracking-tight mb-3">Blast Radius Engine</h1>
         <p className="text-zinc-400 max-w-lg text-center text-sm">
           Map causal chain reactions instantly. Enter an entity, policy, or event to visualize how second and third-order effects propagate through the graph.
@@ -100,10 +102,13 @@ export function BlastRadius() {
           <div className="xl:col-span-3 h-[600px] rounded-xl border border-[#2A2A3A] bg-[#111118] overflow-hidden relative shadow-lg">
              <div className="absolute top-4 left-4 z-10 pointers-events-none bg-[#16161F]/80 backdrop-blur p-3 rounded-lg border border-[#2A2A3A]">
               <h3 className="font-semibold text-sm">Causal Subgraph</h3>
-              <p className="text-xs text-zinc-400 font-mono mt-1">Source: {result.entity_found}</p>
+              <p className="text-xs text-zinc-400 font-mono mt-1">
+                Source: {result.entity_found ?? result.resolved_entity_id}
+                {result.traversal_mode === 'incoming' ? ' · upstream (incoming edges)' : ''}
+              </p>
             </div>
             {graphData && (
-               <KnowledgeGraph data={graphData as any} highlightedNodeId={result.entity_found} />
+               <KnowledgeGraph data={graphData as any} highlightedNodeId={result.entity_found ?? result.resolved_entity_id} />
             )}
           </div>
 
@@ -175,15 +180,20 @@ export function BlastRadius() {
             <div className="bg-[#111118] border border-[#2A2A3A] rounded-lg p-4 w-full">
               <span className="text-xs text-zinc-500 uppercase font-semibold block mb-2">Did you mean:</span>
               <div className="flex flex-wrap gap-2 justify-center">
-                {result.suggestions.map((s, idx) => (
+                {result.suggestions.map((s, idx) => {
+                  const q = typeof s === 'string' ? s : s.id.replace(/_/g, ' ')
+                  const label = typeof s === 'string' ? s : `${s.label} (${s.id})`
+                  return (
                   <button 
                     key={idx} 
-                    onClick={() => { setQuery(s); const fakeEvent = { preventDefault: () => {} } as React.FormEvent; handleSubmit(fakeEvent); }}
+                    type="button"
+                    onClick={() => { setQuery(q); void handleSubmit({ preventDefault: () => {} } as React.FormEvent) }}
                     className="px-3 py-1 bg-purple-500/20 border border-purple-500/30 text-purple-300 rounded font-mono text-xs hover:bg-purple-500/40 transition-colors"
                   >
-                    {s}
+                    {label}
                   </button>
-                ))}
+                  )
+                })}
               </div>
             </div>
           )}
@@ -197,8 +207,4 @@ export function BlastRadius() {
       )}
     </div>
   )
-}
-
-function ZapIcon(props: any) {
-  return <svg xmlns="http://www.w3.org/2000/svg" width={props.size||24} height={props.size||24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>
 }

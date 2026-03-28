@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>INDRA v2 — Intelligence Graph</title>
+  <link rel="icon" type="image/png" href="/static/logo.png" />
   <meta name="description" content="INDRA: Autonomous Geopolitical Intelligence Engine — real-time knowledge graph for global strategic analysis">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -49,17 +50,17 @@
       flex-shrink: 0;
       z-index: 20;
     }
-    .logo {
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: 4px;
-      color: var(--accent);
+    .brand-mark {
+      height: 36px;
+      width: auto;
+      object-fit: contain;
+      display: block;
     }
     .logo-sub {
       font-size: 10px;
       color: var(--muted);
       letter-spacing: 1px;
-      margin-top: 1px;
+      margin-top: 4px;
     }
     .header-stats {
       display: flex;
@@ -481,9 +482,11 @@
 
 <!-- ══ Header ══════════════════════════════════════════════════════════════════ -->
 <div class="header">
-  <div>
-    <div class="logo">INDRA</div>
-    <div class="logo-sub">Autonomous Intelligence Graph v2</div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <img class="brand-mark" src="/static/logo.png" alt="INDRA" />
+    <div>
+      <div class="logo-sub">Autonomous Intelligence Graph v2</div>
+    </div>
   </div>
   <div class="header-stats">
     <div class="hstat">

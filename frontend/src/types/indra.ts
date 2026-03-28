@@ -52,6 +52,14 @@ export interface BlastPath {
   path_labels: string[];
   joint_confidence: number;
   evidence: string[];
+  /** Present when API used incoming-edge fallback */
+  traversal?: 'outgoing' | 'incoming';
+}
+
+export interface BlastSuggestion {
+  id: string;
+  label: string;
+  score: number;
 }
 
 export interface DepthSummary {
@@ -62,14 +70,21 @@ export interface DepthSummary {
 
 export interface BlastRadiusResult {
   entity: string;
-  entity_found: string;
-  total_affected: number;
-  max_depth: number;
-  depth_summary: Record<string, DepthSummary>;
+  entity_found?: string;
+  resolved_entity_id?: string;
+  resolved_label?: string;
+  traversal_mode?: 'outgoing' | 'incoming';
+  match_score?: number;
+  total_affected?: number;
+  max_depth?: number;
+  depth_summary?: Record<string, DepthSummary>;
   paths: BlastPath[];
   synthesis: string | null;
   error?: string;
-  suggestions?: string[];
+  suggestions?: BlastSuggestion[];
+  resolve_reason?: string;
+  best_score?: number | null;
+  edge_summary?: Record<string, number>;
 }
 
 // ── Alerts ────────────────────────────────────────────────────────────

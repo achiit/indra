@@ -8,6 +8,7 @@ import { fetchGraph } from '@/api/graph'
 import { KnowledgeGraph } from '@/components/graph/KnowledgeGraph'
 import { LoadingPulse } from '@/components/shared/LoadingPulse'
 import type { GraphData } from '@/types/indra'
+import { IndraLogo } from '@/components/branding/IndraLogo'
 
 const DOMAIN_LABELS: Record<string, string> = {
   geopolitics: 'Geopolitical Intelligence',
@@ -53,8 +54,9 @@ export function DomainPanel() {
       {/* Header */}
       <div className="flex-shrink-0 flex justify-between items-end border-b border-[#2A2A3A] pb-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white mb-1">
-            {DOMAIN_LABELS[domainId || ''] || 'Domain Intelligence'}
+          <h1 className="text-2xl font-bold tracking-tight text-white mb-1 flex items-center gap-3 flex-wrap">
+            <IndraLogo height={34} className="max-w-[5rem]" />
+            <span>{DOMAIN_LABELS[domainId || ''] || 'Domain Intelligence'}</span>
           </h1>
           <p className="text-sm text-zinc-400 capitalize flex items-center gap-2">
             <span>{graph.total_nodes} Tracked Entities</span>

@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
+import { IndraLogo } from '@/components/branding/IndraLogo'
 
 export function Verify() {
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
@@ -43,6 +44,9 @@ export function Verify() {
         exit={{ opacity: 0, x: -20 }}
         className="z-10 w-full max-w-sm"
       >
+        <div className="flex justify-center mb-6">
+          <IndraLogo height={48} />
+        </div>
         <Card className="backdrop-blur-xl bg-[#111118]/80 border-[#2A2A3A]">
           <CardHeader>
             <CardTitle className="text-xl">Verify OTP</CardTitle>

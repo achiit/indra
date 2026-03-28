@@ -1,8 +1,8 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Globe, TrendingUp, Shield, Cpu, Leaf, Users, Zap, Bell, Bookmark, Clock, FileText, Settings, LogOut, Search } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { LayoutDashboard, Globe, TrendingUp, Shield, Cpu, Leaf, Users, Zap, Bell, Bookmark, Clock, FileText, Settings, LogOut } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useAlertStore } from '@/store/alertStore'
+import { IndraLogo } from '@/components/branding/IndraLogo'
 
 export function Sidebar() {
   const { user, logout } = useAuthStore()
@@ -30,16 +30,10 @@ export function Sidebar() {
   return (
     <div className="w-64 bg-[#0A0A0F] border-r border-[#2A2A3A] flex flex-col h-screen shrink-0 text-sm">
       {/* Brand */}
-      <div className="h-16 flex items-center px-6 border-b border-[#2A2A3A]">
-        {/* INDRA Eye Logo minimal inline */}
-        <div className="flex items-center gap-3">
-          <div className="relative w-6 h-6 rounded-full border border-purple-500 overflow-hidden flex items-center justify-center">
-            <div className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#00ffff]" />
-            <div className="absolute inset-0 bg-teal-400/10" />
-            <div className="absolute top-1/2 -left-1 w-8 h-px bg-purple-500 transform -translate-y-1/2 rotate-45" />
-          </div>
-          <span className="font-semibold tracking-[0.2em] text-[#F4F4F5] mt-0.5 uppercase">INDRA</span>
-        </div>
+      <div className="h-16 flex items-center px-4 border-b border-[#2A2A3A]">
+        <NavLink to="/dashboard" className="flex items-center min-w-0 hover:opacity-90 transition-opacity">
+          <IndraLogo height={34} className="max-w-[9.5rem]" />
+        </NavLink>
       </div>
 
       {/* Nav */}

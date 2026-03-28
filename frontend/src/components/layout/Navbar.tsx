@@ -1,5 +1,6 @@
 import { Search, Bell, Menu } from 'lucide-react'
 import { useAlertStore } from '@/store/alertStore'
+import { IndraLogo } from '@/components/branding/IndraLogo'
 
 export function Navbar() {
   const { unreadCount } = useAlertStore()
@@ -8,12 +9,16 @@ export function Navbar() {
     <header className="h-16 flex items-center justify-between px-6 border-b border-[#2A2A3A] bg-[#0A0A0F]/95 backdrop-blur z-20 sticky top-0">
       
       {/* Mobile menu toggle (placeholder for future) */}
-      <button className="md:hidden text-zinc-400 mr-4">
+      <button className="md:hidden text-zinc-400 mr-2 shrink-0">
         <Menu size={20} />
       </button>
 
+      <div className="shrink-0 mr-3 md:mr-4 flex items-center">
+        <IndraLogo height={30} className="max-w-[7rem] md:max-w-[8rem]" />
+      </div>
+
       {/* Global Search */}
-      <div className="flex-1 max-w-xl relative">
+      <div className="flex-1 max-w-xl relative min-w-0">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-500" size={16} />
         <input 
           type="text" 
