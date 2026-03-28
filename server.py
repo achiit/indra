@@ -45,8 +45,29 @@ from typed_ontology import (
 from decay_engine import run_decay, domain_confidence_summary, get_domain_alerts
 from blast_radius import blast_radius_query
 from provider_router import llm_complete
+from api.auth import router as auth_router
+from api.briefing import router as briefing_router
+from db.database import test_connection
+
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="INDRA v2 Intelligence Graph")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(auth_router)
+app.include_router(briefing_router, prefix="/api")
 
 # Serve static files
 if os.path.exists("static"):
@@ -57,6 +78,8 @@ if os.path.exists("static"):
 
 @app.on_event("startup")
 async def on_startup():
+    logger.info("[Server] INDRA v2 startup — verifying external database connection...")
+    test_connection()
     logger.info("[Server] INDRA v2 startup — running decay engine...")
     try:
         stats = await asyncio.to_thread(run_decay)
@@ -203,6 +226,21 @@ async def blast_radius_endpoint(body: dict):
         return result
     except Exception as e:
         logger.error(f"[BlastRadius] Error: {e}")
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@app.post("/api/blast-radius-fast")
+async def blast_radius_fast_endpoint(body: dict):
+    entity = body.get("entity", "").strip()
+    if not entity:
+        return JSONResponse({"error": "entity is required"}, status_code=400)
+
+    try:
+        # Omitting llm_func skips the LLM synthesis entirely for 20ms response times
+        result = await blast_radius_query(entity, depth=3)
+        return result
+    except Exception as e:
+        logger.error(f"[BlastRadiusFast] Error: {e}")
         return JSONResponse({"error": str(e)}, status_code=500)
 
 
