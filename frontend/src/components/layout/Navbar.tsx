@@ -22,42 +22,48 @@ export function Navbar() {
   }, [])
 
   return (
-    <header className="h-16 flex items-center justify-between px-6 border-b border-[#2A2A3A] bg-[#0A0A0F]/95 backdrop-blur z-20 sticky top-0">
-      
-      {/* Mobile menu toggle (placeholder for future) */}
-      <button className="md:hidden text-zinc-400 mr-2 shrink-0">
-        <Menu size={20} />
-      </button>
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary sticky-top px-3">
+      <div className="container-fluid p-0">
+        <button className="navbar-toggler d-lg-none border-0 me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sideMenu" aria-controls="sideMenu" aria-label="Toggle navigation">
+          <Menu size={24} />
+        </button>
 
-      <div className="shrink-0 mr-3 md:mr-4 flex items-center">
-        <IndraLogo height={30} className="max-w-[7rem] md:max-w-[8rem]" />
-      </div>
+        <a className="navbar-brand d-lg-none d-flex align-items-center" href="#">
+          <IndraLogo height={28} />
+        </a>
 
-      {/* Global Search */}
-      <div className="flex-1 max-w-xl relative min-w-0">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-500" size={16} />
-        <input
-          ref={searchRef}
-          type="text"
-          placeholder="Search entities, events, or type a query... (⌘K)"
-          value={commandSearch}
-          onChange={(e) => setCommandSearch(e.target.value)}
-          className="w-full bg-[#16161F] border border-[#2A2A3A] rounded-md pl-10 pr-16 py-2 text-sm text-zinc-200 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-colors placeholder:text-zinc-600"
-        />
-        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex gap-1">
-          <kbd className="px-1.5 py-0.5 bg-[#2A2A3A] text-zinc-400 rounded text-[10px] font-mono font-medium">⌘</kbd>
-          <kbd className="px-1.5 py-0.5 bg-[#2A2A3A] text-zinc-400 rounded text-[10px] font-mono font-medium">K</kbd>
+        <div className="d-flex flex-grow-1 mx-2 mx-lg-4 position-relative align-items-center">
+          {/* Search Input */}
+          <div className="ux4g-search w-100" style={{ maxWidth: '600px' }}>
+            <div className="search-wrapper position-relative w-100">
+              <span className="position-absolute start-0 top-50 translate-middle-y ms-3 text-muted" style={{ zIndex: 10 }}>
+                <Search size={16} />
+              </span>
+              <input
+                ref={searchRef}
+                type="search"
+                placeholder="Search entities, events... (⌘K)"
+                value={commandSearch}
+                onChange={(e) => setCommandSearch(e.target.value)}
+                className="search-input form-control bg-dark text-light border-secondary ms-1"
+                style={{ paddingLeft: '2.5rem' }}
+                aria-label="Search"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="d-flex align-items-center gap-3 ms-auto">
+          <button type="button" className="btn btn-link text-light position-relative p-0" aria-label="Notifications">
+            <Bell size={20} />
+            {unreadCount > 0 && (
+              <span className="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
+                <span className="visually-hidden">New alerts</span>
+              </span>
+            )}
+          </button>
         </div>
       </div>
-
-      <div className="flex items-center gap-4 ml-4">
-        <button className="relative text-zinc-400 hover:text-zinc-200">
-          <Bell size={18} />
-          {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500 ring-2 ring-[#0A0A0F]" />
-          )}
-        </button>
-      </div>
-    </header>
+    </nav>
   )
 }

@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/button'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
 import { loginApi } from '@/api/auth'
@@ -29,77 +28,94 @@ export function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0F] flex flex-col md:flex-row overflow-hidden">
-      
+    <div className="container-fluid min-vh-100 p-0 d-flex flex-column flex-md-row overflow-hidden bg-dark">
+
       {/* Left Area - Branding */}
-      <div 
-        className="flex-1 relative hidden md:flex items-center justify-center p-12 border-r border-[#2A2A3A] bg-[#0A0A0F] overflow-hidden bg-cover bg-center"
-        style={{ backgroundImage: "url('/login.png')" }}
+      <div
+        className="col-md-6 position-relative d-none d-md-flex flex-column justify-content-center p-5 border-end border-secondary bg-dark overflow-hidden"
+        style={{ backgroundImage: "url('/login.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}
       >
-        <div className="absolute inset-0 bg-black/60" />
-        <motion.div 
-          className="absolute inset-0 bg-purple-600/10 blur-[120px]"
+        <div className="position-absolute w-100 h-100 top-0 start-0 bg-black opacity-50" />
+        <motion.div
+          className="position-absolute w-100 h-100 top-0 start-0"
+          style={{ background: 'rgba(124,58,237,0.1)', filter: 'blur(120px)' }}
           animate={{ scale: [1, 1.1, 1], opacity: [0.03, 0.08, 0.03] }}
           transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
         />
-        <div className="z-10 flex flex-col items-start max-w-lg">
-          <IndraLogo height={88} className="mb-8 drop-shadow-[0_0_24px_rgba(124,58,237,0.25)]" />
-          <h1 className="text-5xl font-bold tracking-tight text-white mb-6 uppercase">
-            INDRA v2<br/>Intelligence Engine
+        <div className="z-1" style={{ maxWidth: '32rem' }}>
+          <IndraLogo height={88} className="mb-4" />
+          <h1 className="display-4 fw-bold text-white mb-4 text-uppercase">
+            INDRA v2<br />Intelligence Engine
           </h1>
-          <p className="text-zinc-400 text-lg leading-relaxed mb-8">
+          <p className="lead text-muted mb-5">
             Authorized access only. Monitor causal graph reactions, real-time geopolitical decay, and autonomous blast-radius tracking.
           </p>
-          <div className="flex items-center gap-4 text-xs font-mono text-purple-400 border border-purple-500/20 bg-purple-500/10 px-4 py-2 rounded-full">
-            <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+          <div className="d-inline-flex align-items-center gap-3 font-monospace text-light border border-secondary px-3 py-2 rounded-pill" style={{ fontSize: '12px', backgroundColor: 'rgba(255,255,255,0.05)' }}>
+            <span className="rounded-circle bg-primary animate-pulse" style={{ width: '8px', height: '8px' }} />
             Live Network Secure
           </div>
         </div>
       </div>
 
       {/* Right Area - Form */}
-      <div className="w-full md:w-[600px] flex items-center justify-center p-8 bg-[#111118]">
-        <motion.div 
-          initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} 
-          className="w-full max-w-sm"
+      <div className="col-12 col-md-6 d-flex align-items-center justify-content-center p-4 bg-dark">
+        <motion.div
+          initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
+          className="w-100" style={{ maxWidth: '24rem' }}
         >
-          <div className="mb-10 md:hidden flex items-center gap-4 border-b border-[#2A2A3A] pb-6">
+          <div className="mb-5 d-md-none d-flex align-items-center gap-3 border-bottom border-secondary pb-4">
             <IndraLogo height={40} />
           </div>
 
-          <h2 className="text-2xl font-semibold text-white mb-2">Welcome Back</h2>
-          <p className="text-sm text-zinc-500 mb-8">Sign in to your analyst desk.</p>
+          <h2 className="h2 text-white mb-2">Welcome Back</h2>
+          <p className="body-2 text-muted mb-4">Sign in to your analyst desk.</p>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Email Address</label>
+          <form onSubmit={handleSubmit} className="d-flex flex-column needs-validation" noValidate>
+
+            <div className="mb-3">
+              <label htmlFor="loginEmail" className="form-label label-3 text-muted text-uppercase tracking-wider">Email Address</label>
               <input
+                id="loginEmail"
                 type="email" required value={email} onChange={e => setEmail(e.target.value)}
                 placeholder="analyst@fund.com"
-                className="w-full bg-[#16161F] border border-[#2A2A3A] rounded-md px-4 py-3 text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors"
+                className="form-control bg-dark text-light border-secondary py-2"
+                aria-required="true"
               />
+              <div className="invalid-feedback">Please provide a valid email.</div>
             </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Password</label>
+
+            <div className="mb-3">
+              <label htmlFor="loginPass" className="form-label label-3 text-muted text-uppercase tracking-wider">Password</label>
               <input
+                id="loginPass"
                 type="password" required value={password} onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-[#16161F] border border-[#2A2A3A] rounded-md px-4 py-3 text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors"
+                className="form-control bg-dark text-light border-secondary py-2"
+                aria-required="true"
               />
             </div>
 
-            {error && <div className="text-xs text-red-400 bg-red-400/10 border border-red-400/20 p-3 rounded">{error}</div>}
+            {error && (
+              <div className="alert alert-danger py-2 px-3 text-sm mb-3" role="alert">
+                {error}
+              </div>
+            )}
 
-            <Button 
+            <button
               type="submit" disabled={loading}
-              className="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-6 mt-4"
+              className="btn btn-primary w-100 py-2 mt-2 fw-semibold"
             >
-              {loading ? 'Authenticating...' : 'Sign In'}
-            </Button>
+              {loading ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Authenticating...
+                </>
+              ) : 'Sign In'}
+            </button>
           </form>
 
-          <p className="text-center text-sm text-zinc-500 mt-8">
-            Don't have an account? <Link to="/signup" className="text-purple-400 hover:text-purple-300 ml-1">Request Access</Link>
+          <p className="text-center body-2 text-muted mt-4">
+            Don't have an account? <Link to="/signup" className="text-primary ms-1 text-decoration-none">Request Access</Link>
           </p>
         </motion.div>
       </div>

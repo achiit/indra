@@ -1,7 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
 import { IndraLogo } from '@/components/branding/IndraLogo'
@@ -37,23 +35,23 @@ export function Verify() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0F] flex items-center justify-center p-4">
-      <motion.div 
+    <div className="container-fluid min-vh-100 bg-dark d-flex align-items-center justify-content-center p-3 p-md-4">
+      <motion.div
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -20 }}
-        className="z-10 w-full max-w-sm"
+        className="z-1 w-100" style={{ maxWidth: '24rem' }}
       >
-        <div className="flex justify-center mb-6">
+        <div className="d-flex justify-content-center mb-5">
           <IndraLogo height={48} />
         </div>
-        <Card className="backdrop-blur-xl bg-[#111118]/80 border-[#2A2A3A]">
-          <CardHeader>
-            <CardTitle className="text-xl">Verify OTP</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-              <div className="flex justify-between gap-2">
+        <div className="card text-light border-secondary shadow-lg" style={{ backgroundColor: 'rgba(17, 17, 24, 0.8)', backdropFilter: 'blur(16px)' }}>
+          <div className="card-header border-bottom border-secondary bg-transparent pt-4 pb-3 px-4">
+            <h5 className="card-title fw-bold mb-0">Verify Access</h5>
+          </div>
+          <div className="card-body p-4 p-md-5">
+            <form onSubmit={handleSubmit} className="d-flex flex-column gap-4">
+              <div className="d-flex justify-content-between gap-2">
                 {otp.map((d, i) => (
                   <input
                     key={i}
@@ -63,17 +61,18 @@ export function Verify() {
                     value={d}
                     onChange={e => handleChange(i, e.target.value)}
                     onKeyDown={e => handleKeyDown(i, e)}
-                    className="w-12 h-14 bg-[#16161F] border border-[#2A2A3A] rounded-md text-center text-xl font-mono text-white focus:outline-none focus:border-purple-500 transition-colors"
+                    className="form-control bg-dark border-secondary text-center text-white fw-bold font-monospace focus-ring focus-ring-primary transition-colors"
+                    style={{ width: '3rem', height: '3.5rem', fontSize: '1.25rem' }}
                   />
                 ))}
               </div>
-              <p className="text-xs text-center text-zinc-500">Resend code in <span className="font-mono text-zinc-400">0:45</span></p>
-              <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold" disabled={loading || otp.join('').length < 6}>
+              <p className="body-3 text-center text-muted mb-2">Resend code in <span className="font-monospace text-light opacity-75">0:45</span></p>
+              <button type="submit" className="btn btn-primary w-100 fw-semibold py-2" disabled={loading || otp.join('').length < 6}>
                 {loading ? 'Verifying...' : 'Verify Access'}
-              </Button>
+              </button>
             </form>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </motion.div>
     </div>
   )

@@ -3,19 +3,19 @@ import { ENTITY_COLORS } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
 const ENTITY_LABELS: Record<EntityType, string> = {
-  NATION:             'Nation',
-  LEADER:             'Leader',
-  ORGANIZATION:       'Org',
-  MILITARY_UNIT:      'Military',
-  TREATY:             'Treaty',
+  NATION: 'Nation',
+  LEADER: 'Leader',
+  ORGANIZATION: 'Org',
+  MILITARY_UNIT: 'Military',
+  TREATY: 'Treaty',
   ECONOMIC_INDICATOR: 'Economic',
-  CONFLICT_ZONE:      'Conflict Zone',
-  POLICY:             'Policy',
-  TECHNOLOGY:         'Tech',
-  NATURAL_RESOURCE:   'Resource',
-  ALLIANCE:           'Alliance',
-  SANCTION:           'Sanction',
-  UNKNOWN:            'Unknown',
+  CONFLICT_ZONE: 'Conflict Zone',
+  POLICY: 'Policy',
+  TECHNOLOGY: 'Tech',
+  NATURAL_RESOURCE: 'Resource',
+  ALLIANCE: 'Alliance',
+  SANCTION: 'Sanction',
+  UNKNOWN: 'Unknown',
 }
 
 interface EntityTypeBadgeProps {
@@ -29,14 +29,15 @@ export function EntityTypeBadge({ type, className, size = 'sm' }: EntityTypeBadg
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-md font-medium border',
-        size === 'sm' ? 'text-[10px] px-1.5 py-0.5' : 'text-xs px-2 py-1',
+        'd-inline-flex align-items-center rounded-2 fw-medium border',
+        size === 'sm' ? 'px-2 py-1' : 'px-3 py-1',
         className
       )}
       style={{
         color,
         borderColor: `${color}40`,
         background: `${color}15`,
+        fontSize: size === 'sm' ? '0.625rem' : '0.75rem'
       }}
     >
       {ENTITY_LABELS[type]}

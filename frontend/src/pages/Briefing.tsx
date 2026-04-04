@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ScrollText, ArrowLeft, Copy, Check } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { generateMorningBrief } from '@/api/blastRadius'
 import { LoadingPulse } from '@/components/shared/LoadingPulse'
 import { IndraLogo } from '@/components/branding/IndraLogo'
@@ -32,14 +31,14 @@ export function Briefing() {
       setBriefText(briefing)
       const when = generated_at
         ? `${new Date(generated_at).toLocaleString('en-GB', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-            timeZone: 'UTC',
-          })} UTC`
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+          timeZone: 'UTC',
+        })} UTC`
         : null
       setBriefMeta(when)
     } catch {
@@ -59,102 +58,103 @@ export function Briefing() {
   }
 
   return (
-    <div className="min-h-full flex flex-col bg-[#0A0A0F] text-[#F4F4F5]">
-      <div className="border-b border-[#2A2A3A] bg-[#111118]/80 backdrop-blur-sm px-6 py-5 shrink-0">
-        <div className="max-w-6xl mx-auto flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-start gap-4">
+    <div className="min-vh-100 d-flex flex-column bg-dark text-light">
+      <div className="border-bottom border-secondary px-3 py-3 px-md-4 py-md-4 flex-shrink-0" style={{ backgroundColor: 'rgba(17, 17, 24, 0.8)', backdropFilter: 'blur(4px)' }}>
+        <div className="container-fluid max-w-100 mx-auto mx-xl-4 d-flex flex-column gap-3 flex-sm-row align-items-sm-center justify-content-sm-between p-0" style={{ maxWidth: '1200px' }}>
+          <div className="d-flex align-items-start gap-3">
             <Link
               to="/dashboard"
-              className="mt-1 p-2 rounded-lg border border-[#2A2A3A] text-zinc-400 hover:text-white hover:border-zinc-600 transition-colors shrink-0"
+              className="mt-1 p-2 rounded border border-secondary text-muted text-decoration-none d-flex align-items-center justify-content-center flex-shrink-0"
+              style={{ width: '36px', height: '36px' }}
               aria-label="Back to Command Centre"
             >
               <ArrowLeft size={18} />
             </Link>
             <div>
-              <div className="flex items-center gap-3 flex-wrap">
-                <ScrollText className="text-teal-400" size={22} />
-                <h1 className="text-xl font-bold tracking-tight text-white">Intelligence briefing</h1>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-red-500/40 text-red-400 uppercase tracking-widest">
+              <div className="d-flex align-items-center gap-2 flex-wrap">
+                <ScrollText className="text-info" size={22} />
+                <h1 className="h5 fw-bold text-white mb-0">Intelligence briefing</h1>
+                <span className="badge border border-danger text-danger bg-transparent font-monospace" style={{ fontSize: '0.65rem' }}>
                   RESTRICTED
                 </span>
               </div>
-              <p className="text-sm text-zinc-500 mt-2 max-w-2xl leading-relaxed">
+              <p className="body-3 text-muted mt-1 mb-0" style={{ maxWidth: '600px' }}>
                 Desk-ready ASCII brief from the live typed graph. Pick a domain, generate, then copy or print.
               </p>
             </div>
           </div>
-          <IndraLogo height={40} className="opacity-90 hidden sm:block shrink-0" />
+          <IndraLogo height={40} className="opacity-75 d-none d-sm-block flex-shrink-0" />
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col px-4 py-6 md:px-8 md:py-8 min-h-0">
-        <div className="max-w-6xl w-full mx-auto flex flex-col flex-1 min-h-0 gap-6">
-          <div className="flex flex-wrap gap-2">
+      <div className="flex-grow-1 d-flex flex-column py-4 px-3 px-md-4 min-h-0">
+        <div className="container-fluid d-flex flex-column flex-grow-1 p-0 mx-auto" style={{ maxWidth: '1200px' }}>
+          <div className="d-flex flex-wrap gap-2 mb-4">
             {BRIEF_DOMAINS.map((d) => (
               <button
                 key={d.id}
                 type="button"
                 onClick={() => setBriefDomain(d.id)}
-                className={`text-xs px-3 py-2 rounded-md border font-mono uppercase tracking-wide transition-colors ${
-                  briefDomain === d.id
-                    ? 'border-teal-500 bg-teal-500/15 text-teal-200'
-                    : 'border-[#2A2A3A] text-zinc-500 hover:border-zinc-600 hover:text-zinc-300'
-                }`}
+                className={`btn btn-sm font-monospace text-uppercase ${briefDomain === d.id
+                    ? 'btn-info border-info text-dark fw-semibold'
+                    : 'btn-outline-secondary text-muted'
+                  }`}
+                style={{ fontSize: '0.75rem', letterSpacing: '0.05em' }}
               >
                 {d.label}
               </button>
             ))}
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 shrink-0">
-            <Button
+          <div className="d-flex flex-column flex-sm-row align-items-sm-center gap-3 flex-shrink-0 mb-4">
+            <button
               type="button"
               onClick={handleGenerate}
               disabled={briefLoading}
-              className="w-full sm:w-auto min-w-[220px] bg-teal-700 hover:bg-teal-600 text-white font-bold tracking-wider text-sm h-11"
+              className="btn btn-info fw-bold text-dark text-uppercase h-100"
+              style={{ minWidth: '220px', fontSize: '0.875rem', letterSpacing: '0.05em' }}
             >
               {briefLoading ? 'GENERATING BRIEF…' : 'Generate morning brief'}
-            </Button>
+            </button>
             {briefText && (
-              <Button
+              <button
                 type="button"
-                variant="outline"
                 onClick={copyBrief}
-                className="border-[#2A2A3A] bg-[#16161F] text-zinc-300 hover:bg-[#1f1f2a]"
+                className="btn btn-outline-secondary d-flex align-items-center justify-content-center bg-dark text-light"
               >
                 {copied ? (
                   <>
-                    <Check size={16} className="mr-2 text-emerald-400" /> Copied
+                    <Check size={16} className="me-2 text-success" /> Copied
                   </>
                 ) : (
                   <>
-                    <Copy size={16} className="mr-2" /> Copy text
+                    <Copy size={16} className="me-2 text-muted" /> Copy text
                   </>
                 )}
-              </Button>
+              </button>
             )}
             {briefMeta && (
-              <span className="text-xs text-zinc-600 font-mono sm:ml-auto">Generated: {briefMeta}</span>
+              <span className="text-muted font-monospace ms-sm-auto" style={{ fontSize: '0.75rem' }}>Generated: {briefMeta}</span>
             )}
           </div>
 
-          <div className="flex-1 min-h-[min(70vh,720px)] rounded-xl border border-[#2A2A3A] bg-[#050508] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] overflow-hidden flex flex-col">
+          <div className="flex-grow-1 d-flex flex-column rounded-3 border border-secondary shadow-sm overflow-hidden" style={{ minHeight: 'min(70vh, 720px)', backgroundColor: '#050508' }}>
             {briefLoading && (
-              <div className="flex-1 flex items-center justify-center p-12">
+              <div className="flex-grow-1 d-flex align-items-center justify-content-center p-5">
                 <LoadingPulse text="SYNTHESIZING BRIEF FROM GRAPH…" />
               </div>
             )}
             {!briefLoading && briefText && (
-              <div className="flex-1 overflow-auto p-6 md:p-10">
-                <pre className="text-sm md:text-[15px] leading-relaxed text-cyan-100/95 font-mono whitespace-pre-wrap break-words m-0 max-w-none">
+              <div className="flex-grow-1 overflow-auto p-4 p-md-5">
+                <pre className="text-info font-monospace" style={{ fontSize: '0.875rem', lineHeight: 1.6, whiteSpace: 'pre-wrap', wordBreak: 'break-word', margin: 0, opacity: 0.9 }}>
                   {briefText}
                 </pre>
               </div>
             )}
             {!briefLoading && !briefText && (
-              <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
-                <p className="text-zinc-500 text-sm max-w-md">
-                  No brief yet. Select a domain above and click <strong className="text-zinc-400">Generate morning brief</strong>.
+              <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center p-5 text-center">
+                <p className="text-muted body-2" style={{ maxWidth: '400px' }}>
+                  No brief yet. Select a domain above and click <strong className="text-light">Generate morning brief</strong>.
                 </p>
               </div>
             )}

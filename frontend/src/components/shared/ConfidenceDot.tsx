@@ -14,12 +14,12 @@ export function ConfidenceDot({ value, className, showLabel }: ConfidenceDotProp
   const color = getConfidenceColor(value)
   const labels: Record<string, string> = { high: 'Active', medium: 'Moderate', low: 'Weak', stale: 'Stale' }
   return (
-    <span className={cn('inline-flex items-center gap-1.5', className)}>
+    <span className={cn('d-inline-flex align-items-center gap-2', className)}>
       <span
-        className={cn('rounded-full flex-shrink-0', tier === 'high' ? 'animate-pulse' : '')}
+        className={cn('rounded-circle flex-shrink-0', tier === 'high' ? 'animate-pulse' : '')}
         style={{ width: 7, height: 7, background: color, boxShadow: `0 0 4px ${color}` }}
       />
-      {showLabel && <span className="text-xs text-zinc-400">{labels[tier]}</span>}
+      {showLabel && <span className="text-muted" style={{ fontSize: '0.75rem' }}>{labels[tier]}</span>}
     </span>
   )
 }

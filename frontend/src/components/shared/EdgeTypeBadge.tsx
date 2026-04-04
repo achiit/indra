@@ -11,8 +11,8 @@ export function EdgeTypeBadge({ type, className }: EdgeTypeBadgeProps) {
   const color = EDGE_COLORS[type] || '#6B7280'
   return (
     <span
-      className={cn('inline-flex items-center rounded-md text-[10px] font-medium px-1.5 py-0.5 border', className)}
-      style={{ color, borderColor: `${color}40`, background: `${color}15` }}
+      className={cn('d-inline-flex align-items-center rounded-2 fw-medium px-2 py-1 border', className)}
+      style={{ color, borderColor: `${color}40`, background: `${color}15`, fontSize: '0.625rem' }}
     >
       {EDGE_LABELS[type]}
     </span>

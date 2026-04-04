@@ -15,8 +15,8 @@ export function IndraLogo({ className = '', height = 40, alt = 'INDRA' }: IndraL
     <img
       src={LOGO_SRC}
       alt={alt}
-      className={`object-contain object-left select-none ${className}`}
-      style={{ height, width: 'auto', maxWidth: 'min(100%, 320px)' }}
+      className={`user-select-none ${className}`}
+      style={{ height, width: 'auto', maxWidth: 'min(100%, 320px)', objectFit: 'contain', objectPosition: 'left' }}
       draggable={false}
     />
   )

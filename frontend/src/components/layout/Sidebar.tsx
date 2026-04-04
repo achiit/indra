@@ -10,38 +10,36 @@ export function Sidebar() {
   const nav = useNavigate()
 
   const links = [
-    { to: '/dashboard',            icon: LayoutDashboard, label: 'Command Centre' },
-    { to: '/dashboard/geopolitics',icon: Globe,           label: 'Geopolitics' },
-    { to: '/dashboard/economics',  icon: TrendingUp,      label: 'Economics' },
-    { to: '/dashboard/defense',    icon: Shield,          label: 'Defense' },
-    { to: '/dashboard/technology', icon: Cpu,             label: 'Technology' },
-    { to: '/dashboard/climate',    icon: Leaf,            label: 'Climate' },
-    { to: '/dashboard/society',    icon: Users,           label: 'Society' },
+    { to: '/dashboard', icon: LayoutDashboard, label: 'Command Centre' },
+    { to: '/dashboard/geopolitics', icon: Globe, label: 'Geopolitics' },
+    { to: '/dashboard/economics', icon: TrendingUp, label: 'Economics' },
+    { to: '/dashboard/defense', icon: Shield, label: 'Defense' },
+    { to: '/dashboard/technology', icon: Cpu, label: 'Technology' },
+    { to: '/dashboard/climate', icon: Leaf, label: 'Climate' },
+    { to: '/dashboard/society', icon: Users, label: 'Society' },
     { divider: true },
-    { to: '/blast-radius',         icon: Zap,             label: 'Blast Radius', highlight: true },
-    { to: '/briefing',             icon: ScrollText,      label: 'Morning Brief' },
-    { to: '/alerts',               icon: Bell,            label: 'Alerts', badge: unreadCount },
-    { to: '/watchlist',            icon: Bookmark,        label: 'Watchlist' },
-    { to: '/history',              icon: Clock,           label: 'History' },
-    { to: '/reports',              icon: FileText,        label: 'Reports' },
+    { to: '/blast-radius', icon: Zap, label: 'Blast Radius', highlight: true },
+    { to: '/briefing', icon: ScrollText, label: 'Morning Brief' },
+    { to: '/alerts', icon: Bell, label: 'Alerts', badge: unreadCount },
+    { to: '/watchlist', icon: Bookmark, label: 'Watchlist' },
+    { to: '/history', icon: Clock, label: 'History' },
+    { to: '/reports', icon: FileText, label: 'Reports' },
     { divider: true },
-    { to: '/settings',             icon: Settings,        label: 'Settings' },
+    { to: '/settings', icon: Settings, label: 'Settings' },
   ]
 
   return (
-    <div className="w-64 bg-[#0A0A0F] border-r border-[#2A2A3A] flex flex-col h-screen shrink-0 text-sm">
-      {/* Brand */}
-      <div className="h-16 flex items-center px-4 border-b border-[#2A2A3A]">
-        <NavLink to="/dashboard" className="flex items-center min-w-0 hover:opacity-90 transition-opacity">
-          <IndraLogo height={34} className="max-w-[9.5rem]" />
+    <>
+      <div className="d-none d-lg-flex align-items-center px-4 py-3 border-bottom border-secondary" style={{ height: '64px' }}>
+        <NavLink to="/dashboard" className="text-decoration-none">
+          <IndraLogo height={34} style={{ maxWidth: '9.5rem' }} />
         </NavLink>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-1">
+      <nav className="flex-grow-1 overflow-auto py-3 px-2 d-flex flex-column gap-1" role="navigation" aria-label="Main Navigation">
         {links.map((link, i) => {
           if (link.divider) {
-            return <div key={`div-${i}`} className="my-2 h-px bg-[#2A2A3A] mx-3" />
+            return <hr key={`div-${i}`} className="text-secondary mx-3 my-2 opacity-25 border-top" />
           }
           const Icon = link.icon!
           return (
@@ -50,16 +48,27 @@ export function Sidebar() {
               to={link.to!}
               end={link.to === '/dashboard'}
               className={({ isActive }) => `
-                flex items-center gap-3 px-3 py-2 rounded-md transition-all
-                ${isActive 
-                  ? 'bg-purple-900/20 text-purple-300 before:absolute before:left-0 before:w-1 before:h-6 before:bg-purple-500 before:rounded-r-full' 
-                  : (link.highlight ? 'text-amber-400 hover:bg-white/5 hover:text-amber-300' : 'text-zinc-400 hover:bg-white/5 hover:text-zinc-200')}
+                d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none focus-ring
+                ${isActive
+                  ? 'bg-primary text-white fw-bold'
+                  : (link.highlight ? 'text-warning' : 'text-light')}
               `}
+              onClick={() => {
+                const offcanvasEl = document.getElementById('sideMenu');
+                if (offcanvasEl && offcanvasEl.classList.contains('show')) {
+                  // @ts-ignore
+                  if (window.ux4g) {
+                    // @ts-ignore
+                    const bsOffcanvas = window.ux4g.Offcanvas.getInstance(offcanvasEl);
+                    bsOffcanvas?.hide();
+                  }
+                }
+              }}
             >
-              <Icon size={18} className="shrink-0" />
-              <span className="flex-1 truncate">{link.label}</span>
+              <Icon size={18} className="flex-shrink-0" />
+              <span className="flex-grow-1 text-truncate">{link.label}</span>
               {!!link.badge && link.badge > 0 && (
-                <span className="bg-red-500/20 text-red-400 font-mono text-[10px] px-1.5 py-0.5 rounded min-w-[20px] text-center border border-red-500/30">
+                <span className="badge bg-danger rounded-pill px-2">
                   {link.badge}
                 </span>
               )}
@@ -68,22 +77,23 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Profile */}
-      <div className="p-4 border-t border-[#2A2A3A] flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-300 font-semibold border border-purple-500/30">
+      <div className="p-3 border-top border-secondary d-flex align-items-center gap-3">
+        <div className="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold border border-secondary" style={{ width: '32px', height: '32px' }}>
           {user?.name.charAt(0) || 'U'}
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="truncate text-sm font-medium text-zinc-200">{user?.name}</div>
-          <div className="truncate text-[10px] text-zinc-500 uppercase tracking-wider">{user?.plan} PLAN</div>
+        <div className="flex-grow-1 w-50">
+          <div className="text-truncate body-2 fw-medium mb-0">{user?.name}</div>
+          <div className="text-truncate label-3 text-muted text-uppercase">{user?.plan} PLAN</div>
         </div>
-        <button 
+        <button
+          type="button"
           onClick={() => { logout(); nav('/login') }}
-          className="text-zinc-500 hover:text-zinc-300 p-1"
+          className="btn btn-link text-muted p-1 focus-ring"
+          aria-label="Logout"
         >
           <LogOut size={16} />
         </button>
       </div>
-    </div>
+    </>
   )
 }

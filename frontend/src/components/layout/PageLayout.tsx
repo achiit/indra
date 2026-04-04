@@ -4,6 +4,7 @@ import { LiveTicker } from './LiveTicker'
 import { Outlet, Navigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
 import { useEffect } from 'react'
+import { motion } from 'framer-motion'
 
 export function PageLayout() {
   const { isAuthenticated, initSession } = useAuthStore()
@@ -20,26 +21,57 @@ export function PageLayout() {
   }
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden selection:bg-purple-500/30">
+    <div className="d-flex flex-column vh-100 overflow-hidden bg-dark text-light">
       {/* RESTRICTED SECURITY BANNER */}
-      <div className="w-full bg-red-900/40 text-red-500 font-mono text-[10px] text-center pb-0.5 pt-1 border-b border-red-500/20 tracking-[0.2em] uppercase shrink-0 z-50 shadow-md">
-        [RESTRICTED — ANALYST USE ONLY — INDRA v1.0]
+      <div className="w-100 text-bg-danger d-flex align-items-center justify-content-between px-3 py-1 font-monospace" style={{ fontSize: '10px', letterSpacing: '0.1em' }}>
+        <div>
+          <span className="fw-bold tracking-wider me-3">[RESTRICTED — ANALYST USE ONLY — INDRA v1.0]</span>
+          <span className="d-inline-flex align-items-center gap-2">
+            <motion.span animate={{ opacity: [1, 0.2, 1] }} transition={{ repeat: Infinity, duration: 1.5 }} className="bg-white rounded-circle" style={{ width: '6px', height: '6px' }} />
+            <span className="fw-bold">LIVE</span> • Last sync: 2 min ago
+          </span>
+        </div>
+        <div className="d-none d-lg-flex align-items-center gap-3 opacity-75">
+          <span>📄 847 documents indexed</span>
+          <span>🌐 GDELT live</span>
+          <span>📊 World Bank synced</span>
+        </div>
       </div>
-      
-      <div className="flex flex-1 min-h-0 bg-[#0A0A0F] text-[#F4F4F5]">
-        <Sidebar />
-        <div className="flex-1 flex flex-col min-w-0">
-          <Navbar />
-          <main className="flex-1 overflow-auto bg-[#0A0A0F] relative min-h-0">
-            {/* No route transition animation — pages mount at full opacity for instant tab switches */}
-            <div className="h-full min-h-full w-full">
+
+      <div className="container-fluid flex-grow-1 p-0 overflow-hidden d-flex">
+
+        {/* Desktop Sidebar */}
+        <div className="d-none d-lg-flex flex-column border-end border-secondary bg-dark flex-shrink-0" style={{ width: '250px' }}>
+          <Sidebar />
+        </div>
+
+        {/* Mobile Sidebar (Offcanvas) */}
+        <div className="offcanvas offcanvas-start bg-dark text-white border-end border-secondary" tabIndex={-1} id="sideMenu" aria-labelledby="sideMenuLabel" style={{ width: '250px' }}>
+          <div className="offcanvas-header border-bottom border-secondary">
+            <h5 className="offcanvas-title m-0" id="sideMenuLabel">Menu</h5>
+            <button type="button" className="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+          </div>
+          <div className="offcanvas-body p-0 d-flex flex-column h-100">
+            <Sidebar />
+          </div>
+        </div>
+
+        {/* Main Content Area */}
+        <div className="flex-grow-1 d-flex flex-column min-vw-0">
+          <header role="banner">
+            <Navbar />
+          </header>
+          <main id="main-content" role="main" className="flex-grow-1 overflow-auto bg-dark p-0 position-relative">
+            <div className="h-100 w-100">
               <Outlet />
             </div>
           </main>
         </div>
       </div>
 
-      <LiveTicker />
+      <footer role="contentinfo">
+        <LiveTicker />
+      </footer>
     </div>
   )
 }

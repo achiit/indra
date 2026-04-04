@@ -69,7 +69,14 @@ export function KnowledgeGraph({ data, onNodeClick, highlightedNodeId, focusMode
         ...n,
         label: applyFlag(lblStr.length < 28 ? lblStr : `${lblStr.substring(0, 28)}…`),
         val: Math.min(25, 4 + (degreeMap[n.id] || 0) * 1.5),
-        color: n.id === highlightedNodeId ? '#00ffff' : (DOMAIN_COLORS[n.domain] || '#6B7280'),
+        color: n.id === highlightedNodeId ? '#00ffff' : (
+          n.type === 'Country' ? '#22c55e' :
+            n.type === 'Organization' ? '#a855f7' :
+              n.type === 'Person' ? '#3b82f6' :
+                n.type === 'Event' ? '#f97316' :
+                  n.type === 'Concept' ? '#f3f4f6' :
+                    '#6B7280'
+        ),
       }
     }) as GraphNode[]
 
@@ -101,14 +108,14 @@ export function KnowledgeGraph({ data, onNodeClick, highlightedNodeId, focusMode
 
   const nodeAlpha = (id: string) => {
     if (!focusMode?.active) return 1
-    return focusMode.expandedIds.has(id) ? 1 : 0.1
+    return focusMode.expandedIds.has(id) ? 1 : 0.15
   }
 
   const nodePulse = (id: string) =>
     !!(focusMode?.active && focusMode.pulseIds.has(id))
 
   return (
-    <div ref={containerRef} className="w-full h-full relative bg-[#0A0A0F] rounded-xl overflow-hidden border border-[#2A2A3A]">
+    <div ref={containerRef} className="w-100 h-100 position-relative rounded-3 overflow-hidden border border-secondary" style={{ backgroundColor: '#0A0A0F' }}>
       {dimensions.width > 0 && (
         <ForceGraph2D
           ref={fgRef}
@@ -154,7 +161,7 @@ export function KnowledgeGraph({ data, onNodeClick, highlightedNodeId, focusMode
             if (pulse) {
               ctx.beginPath()
               ctx.arc(node.x!, node.y!, size * 2.4 * pulseR, 0, 2 * Math.PI, false)
-              ctx.strokeStyle = 'rgba(124, 58, 237, 0.45)'
+              ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)'
               ctx.lineWidth = 1.5 / globalScale
               ctx.stroke()
             }
@@ -177,20 +184,41 @@ export function KnowledgeGraph({ data, onNodeClick, highlightedNodeId, focusMode
         />
       )}
 
-      <div className="absolute top-4 right-4 bg-[#111118]/80 backdrop-blur-sm border border-[#2A2A3A] rounded-lg p-3 pointer-events-none">
-        <h4 className="text-[10px] uppercase font-semibold text-zinc-500 mb-2">Confidence Legend</h4>
-        <div className="flex flex-col gap-1.5 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400" /> High (&gt;0.7)
+      <div className="position-absolute top-0 end-0 m-3 bg-dark bg-opacity-75 border border-secondary rounded-3 p-3 shadow-sm" style={{ backdropFilter: 'blur(4px)', zIndex: 10 }}>
+        <h4 className="text-muted text-uppercase fw-semibold mb-2 tracking-wider" style={{ fontSize: '0.625rem' }}>Confidence Legend</h4>
+        <div className="d-flex flex-column gap-2" style={{ fontSize: '0.75rem' }}>
+          <div className="d-flex align-items-center gap-2">
+            <span className="rounded-circle bg-success flex-shrink-0" style={{ width: '8px', height: '8px' }} /> High (&gt;0.7)
           </div>
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-400" /> Med (0.4–0.7)
+          <div className="d-flex align-items-center gap-2">
+            <span className="rounded-circle bg-warning flex-shrink-0" style={{ width: '8px', height: '8px' }} /> Med (0.4–0.7)
           </div>
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-orange-400" /> Low (0.15–0.4)
+          <div className="d-flex align-items-center gap-2">
+            <span className="rounded-circle bg-orange flex-shrink-0" style={{ width: '8px', height: '8px', backgroundColor: '#fb923c' }} /> Low (0.15–0.4)
           </div>
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-zinc-500" /> Stale (&lt;0.15)
+          <div className="d-flex align-items-center gap-2">
+            <span className="rounded-circle bg-secondary flex-shrink-0" style={{ width: '8px', height: '8px' }} /> Stale (&lt;0.15)
+          </div>
+        </div>
+      </div>
+
+      <div className="position-absolute top-0 start-0 m-3 bg-dark bg-opacity-75 border border-secondary rounded-3 p-3 shadow-sm" style={{ backdropFilter: 'blur(4px)', zIndex: 10 }}>
+        <h4 className="text-muted text-uppercase fw-semibold mb-2 tracking-wider" style={{ fontSize: '0.625rem' }}>Entity Types</h4>
+        <div className="d-flex flex-column gap-2" style={{ fontSize: '0.75rem' }}>
+          <div className="d-flex align-items-center gap-2">
+            <span className="rounded-circle flex-shrink-0" style={{ width: '8px', height: '8px', backgroundColor: '#22c55e' }} /> Country
+          </div>
+          <div className="d-flex align-items-center gap-2">
+            <span className="rounded-circle flex-shrink-0" style={{ width: '8px', height: '8px', backgroundColor: '#a855f7' }} /> Organization
+          </div>
+          <div className="d-flex align-items-center gap-2">
+            <span className="rounded-circle flex-shrink-0" style={{ width: '8px', height: '8px', backgroundColor: '#3b82f6' }} /> Person
+          </div>
+          <div className="d-flex align-items-center gap-2">
+            <span className="rounded-circle flex-shrink-0" style={{ width: '8px', height: '8px', backgroundColor: '#f97316' }} /> Event
+          </div>
+          <div className="d-flex align-items-center gap-2">
+            <span className="rounded-circle flex-shrink-0" style={{ width: '8px', height: '8px', backgroundColor: '#f3f4f6' }} /> Concept
           </div>
         </div>
       </div>
