@@ -10,3 +10,8 @@ pyvis
 transformers
 sentence-transformers
 feedparser
+pydantic>=2.0
+httpx
+google-genai
+python-multipart
+spacy

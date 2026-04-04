@@ -243,179 +243,11 @@ def fetch_article_text(url: str, snippet: str) -> str:
         return snippet
 
 
-# ── Groq LLM Wrapper ──────────────────────────────────────────────────────────
-
-import itertools
-from openai import AsyncOpenAI
-
-_api_keys = []
-_key_cycle = None
-
-def get_next_key():
-    global _api_keys, _key_cycle
-    if not _api_keys:
-        keys_str = os.getenv("GROQ_API_KEYS", "")
-        _api_keys = [k.strip() for k in keys_str.split(",") if k.strip()]
-        if not _api_keys:
-            key = os.getenv("GROQ_API_KEY")
-            if key:
-                _api_keys = [key]
-        if not _api_keys:
-            raise ValueError("No GROQ_API_KEY or GROQ_API_KEYS found in .env")
-        _key_cycle = itertools.cycle(_api_keys)
-    return next(_key_cycle)
-
-
-# FIX 2 — truncate prompt before it hits the API
-# Groq free tier = 8,000 TPM. 1 token ≈ 4 chars.
-# 20,000 chars ≈ 5,000 tokens — leaves 3,000 tokens for the response.
-MAX_PROMPT_CHARS = 20000
-
-def truncate_prompt(text: str, max_chars: int = MAX_PROMPT_CHARS) -> str:
-    if len(text) <= max_chars:
-        return text
-    truncated = text[:max_chars]
-    truncated += "\n\n[Context truncated to fit model limits. Answer based on above.]"
-    print(f"  [Groq] Prompt truncated: {len(text)} → {len(truncated)} chars")
-    return truncated
-
-
-async def groq_complete(
-    prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs
-) -> str:
-    # FIX 2 — truncate before building messages
-    prompt = truncate_prompt(str(prompt))
-    if system_prompt:
-        system_prompt = truncate_prompt(str(system_prompt), max_chars=2000)
-
-    messages = []
-    if system_prompt:
-        messages.append({"role": "system", "content": system_prompt})
-    for msg in history_messages:
-        messages.append(msg)
-    messages.append({"role": "user", "content": prompt})
-
-    # FIX 3 — use llama-3.1-8b-instant: 20,000 TPM vs 8,000 for llama3-8b-8192
-    # To use mixtral-8x7b-32768 (32k context, 12k TPM), set in .env:
-    #   GROQ_MODEL=mixtral-8x7b-32768
-    model = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
-
-    allowed_params = ["temperature", "max_tokens", "top_p", "stop"]
-    filtered_kwargs = {k: v for k, v in kwargs.items() if k in allowed_params}
-    filtered_kwargs.setdefault("max_tokens", 1024)
-
-    try:
-        get_next_key()
-    except ValueError as e:
-        return f"Error: {e}"
-
-    max_attempts = max(len(_api_keys) * 3, 6)
-
-    for attempt in range(max_attempts):
-        current_key = get_next_key()
-        client = AsyncOpenAI(
-            api_key=current_key,
-            base_url="https://api.groq.com/openai/v1",
-            max_retries=0,
-        )
-        try:
-            response = await client.chat.completions.create(
-                model=model,
-                messages=messages,
-                **filtered_kwargs
-            )
-            return response.choices[0].message.content
-
-        except Exception as e:
-            error_str = str(e).lower()
-            # Handle both 413 (too large) and 429 (rate limit)
-            if "rate limit" in error_str or "429" in error_str or "413" in error_str:
-                wait = 2 ** min(attempt, 4)  # 1s, 2s, 4s, 8s, 16s
-                print(f"  [Groq] Limit hit (attempt {attempt+1}). "
-                      f"Switching key + waiting {wait}s...")
-                await asyncio.sleep(wait)
-                continue
-            else:
-                print(f"  [Groq] Unexpected error: {e}")
-                raise
-
-    return (
-        "Error: All Groq keys rate-limited. "
-        "Wait 60 seconds and try again, or add more keys as GROQ_API_KEYS=key1,key2,key3 in .env"
-    )
-
-_gemini_api_keys = []
-_gemini_key_cycle = None
-
-def get_next_gemini_key():
-    global _gemini_api_keys, _gemini_key_cycle
-    import os, itertools
-    if not _gemini_api_keys:
-        for i in range(1, 10):
-            key = os.getenv(f"GEMINI_API_KEY_{i}")
-            if key and key.strip():
-                _gemini_api_keys.append(key.strip())
-        
-        if not _gemini_api_keys:
-            key = os.getenv("GEMINI_API_KEY")
-            if key and key.strip():
-                _gemini_api_keys.append(key.strip())
-                
-        if not _gemini_api_keys:
-            raise ValueError("No GEMINI_API_KEY_1 or GEMINI_API_KEY found in .env")
-            
-        _gemini_key_cycle = itertools.cycle(_gemini_api_keys)
-    return next(_gemini_key_cycle)
-
-async def gemini_complete(
-    prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs
-) -> str:
-    from google import genai
-    import asyncio
-
-    contents = ""
-    if system_prompt:
-        contents += f"System: {system_prompt}\n\n"
-    for msg in history_messages:
-        role = msg.get("role", "user")
-        content = msg.get("content", "")
-        contents += f"{role.capitalize()}: {content}\n\n"
-    contents += f"User: {prompt}"
-
-    try:
-        get_next_gemini_key()
-    except ValueError as e:
-        return f"Error: {e}"
-
-    max_attempts = max(len(_gemini_api_keys) * 3, 6)
-
-    for attempt in range(max_attempts):
-        current_key = get_next_gemini_key()
-
-        def _call_gemini(key):
-            client = genai.Client(api_key=key)
-            response = client.models.generate_content(
-                model="gemini-3-flash-preview",
-                contents=contents,
-            )
-            return response.text
-
-        try:
-            return await asyncio.to_thread(_call_gemini, current_key)
-        except Exception as e:
-            error_str = str(e).lower()
-            if "429" in error_str or "quota" in error_str or "rate limit" in error_str:
-                wait = 2 ** min(attempt, 4)
-                print(f"  [Gemini] Limit hit (attempt {attempt+1}). Switching API key + waiting {wait}s...")
-                await asyncio.sleep(wait)
-                continue
-            else:
-                print(f"  [Gemini] Unexpected error: {e}")
-                raise Exception(f"Gemini API Error: {e}")
-
-    return "Error: All Gemini keys rate-limited. Wait 60 seconds and try again."
+# ── LLM Provider (routes through Gemini → Groq → Cerebras → OpenRouter) ──────
+from provider_router import llm_complete
 
 # ── LightRAG helpers ──────────────────────────────────────────────────────────
+
 
 _embedding_model = None
 
@@ -441,7 +273,7 @@ async def _create_rag():
 
     rag = LightRAG(
         working_dir=WORKING_DIR,
-        llm_model_func=gemini_complete,
+        llm_model_func=llm_complete,
         embedding_func=EmbeddingFunc(
             embedding_dim=384, max_token_size=512, func=hf_embedding
         ),
@@ -486,7 +318,13 @@ TITLE: {article.get('title','')}
             seen.add(aid)
             new_count += 1
             domain_ingested[domain] = domain_ingested.get(domain, 0) + 1
-            # FIX 4 — 1.5s pause between inserts to stay under TPM burst
+            # Also extract typed triples for the parallel ontology graph
+            try:
+                from typed_ontology import ingest_article_to_typed_graph
+                await ingest_article_to_typed_graph(article, llm_complete)
+            except Exception as te:
+                print(f"  [TypedGraph] Skipped typed extraction: {te}")
+            # Pace between inserts to stay under TPM limits
             await asyncio.sleep(1.5)
         except Exception as e:
             errors += 1

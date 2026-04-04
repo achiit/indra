@@ -3,281 +3,963 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>INDRA — Intelligence Graph</title>
+  <title>INDRA v2 — Intelligence Graph</title>
+  <link rel="icon" type="image/png" href="/static/logo.png" />
+  <meta name="description" content="INDRA: Autonomous Geopolitical Intelligence Engine — real-time knowledge graph for global strategic analysis">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg:        #080d18;
+      --bg2:       #0d1526;
+      --bg3:       #111e36;
+      --border:    #1a2d4a;
+      --border2:   #243d5e;
+      --accent:    #00d4a0;
+      --accent2:   #0099ff;
+      --warn:      #f59e0b;
+      --danger:    #ef4444;
+      --text:      #e2eaf5;
+      --muted:     #5a7a9a;
+      --stale:     #3a4a5a;
+      --font:      'Inter', system-ui, sans-serif;
+      --mono:      'JetBrains Mono', monospace;
+    }
+
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { background:#0A1628; color:#fff; font-family:'Inter',system-ui,sans-serif; height:100vh; overflow:hidden; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
 
     /* ── Header ── */
     .header {
-      display:flex; align-items:center; gap:16px;
-      padding:12px 24px; border-bottom:1px solid #1a2a4a;
-      background:#0A1628; z-index:10;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0 20px;
+      height: 48px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+      flex-shrink: 0;
+      z-index: 20;
     }
-    .logo { font-size:22px; font-weight:700; color:#00C896; letter-spacing:3px; }
-    .tagline { font-size:12px; color:#5a7a9a; }
-    .status-dot { width:8px; height:8px; border-radius:50%; background:#00C896; animation:pulse 2s infinite; margin-left:auto; }
-    .status-label { font-size:11px; color:#5a7a9a; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .brand-mark {
+      height: 36px;
+      width: auto;
+      object-fit: contain;
+      display: block;
+    }
+    .logo-sub {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+    .header-stats {
+      display: flex;
+      gap: 20px;
+      margin-left: auto;
+      align-items: center;
+    }
+    .hstat {
+      text-align: right;
+    }
+    .hstat-num {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--accent);
+      font-family: var(--mono);
+    }
+    .hstat-label {
+      font-size: 9px;
+      color: var(--muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100%{opacity:1; transform:scale(1);}
+      50%{opacity:.4; transform: scale(1.3);}
+    }
 
-    /* ── Layout ── */
-    .layout { display:grid; grid-template-columns:340px 1fr; height:calc(100vh - 49px); }
+    /* ── Tab bar ── */
+    .tab-bar {
+      display: flex;
+      gap: 2px;
+      padding: 0 20px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .tab {
+      padding: 8px 14px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .5px;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      border-bottom: 2px solid transparent;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab .alert-badge {
+      background: var(--danger);
+      color: white;
+      font-size: 9px;
+      padding: 1px 5px;
+      border-radius: 8px;
+      margin-left: 4px;
+      font-weight: 700;
+    }
+
+    /* ── Main layout ── */
+    .main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
 
     /* ── Sidebar ── */
     .sidebar {
-      padding:20px; border-right:1px solid #1a2a4a;
-      overflow-y:auto; display:flex; flex-direction:column; gap:20px;
-      scrollbar-width:thin; scrollbar-color:#1a2a4a #0A1628;
+      width: 300px;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      flex-shrink: 0;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
     }
-
+    .sidebar-section {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
     .section-label {
-      font-size:10px; font-weight:600; letter-spacing:2px;
-      text-transform:uppercase; color:#00C896; margin-bottom:10px;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
     }
 
-    /* ── Stat cards ── */
-    .stats { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-    .stat-card {
-      background:#0d1f35; border:1px solid #1a3a5a; border-radius:8px;
-      padding:14px; text-align:center;
+    /* ── Stat grid ── */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
     }
-    .stat-num { font-size:26px; font-weight:700; color:#00C896; }
-    .stat-label { font-size:10px; color:#5a7a9a; margin-top:4px; }
+    .stat-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px;
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--accent);
+      font-family: var(--mono);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 9px;
+      color: var(--muted);
+      margin-top: 4px;
+      letter-spacing: .5px;
+    }
 
     /* ── Buttons ── */
     .btn {
-      width:100%; padding:11px; border:none; border-radius:8px;
-      font-weight:600; font-size:13px; cursor:pointer;
-      letter-spacing:.5px; transition:all .2s;
+      width: 100%;
+      padding: 9px 14px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all .2s;
+      letter-spacing: .3px;
     }
-    .btn-primary { background:#00C896; color:#0A1628; }
-    .btn-primary:hover { background:#00a87e; }
-    .btn-secondary { background:#0d1f35; color:#00C896; border:1px solid #1a3a5a; }
-    .btn-secondary:hover { border-color:#00C896; }
-    .btn:disabled { opacity:.4; cursor:not-allowed; }
-
-    /* ── Upload zone ── */
-    .upload-zone {
-      border:2px dashed #1a3a5a; border-radius:8px; padding:18px;
-      text-align:center; cursor:pointer; transition:all .2s;
-    }
-    .upload-zone:hover { border-color:#00C896; background:#0d2035; }
-    .upload-icon { font-size:20px; margin-bottom:6px; }
-    .upload-hint { font-size:12px; color:#5a7a9a; }
-
-    /* ── Query box ── */
-    .query-textarea {
-      width:100%; background:#0d1f35; border:1px solid #1a3a5a;
-      border-radius:8px; color:#fff; padding:12px; font-size:13px;
-      resize:none; outline:none; line-height:1.6; font-family:inherit;
-    }
-    .query-textarea:focus { border-color:#00C896; }
-    .query-textarea::placeholder { color:#3a5a7a; }
-
-    /* ── Mode selector ── */
-    .mode-row { display:flex; gap:8px; margin-bottom:10px; }
-    .mode-btn {
-      flex:1; padding:7px; background:#0d1f35; border:1px solid #1a3a5a;
-      color:#5a7a9a; border-radius:6px; font-size:11px; cursor:pointer;
-      transition:all .2s; font-weight:500;
-    }
-    .mode-btn.active { background:#00C896; border-color:#00C896; color:#0A1628; }
-
-    /* ── Answer box ── */
-    .answer-box {
-      background:#0d1f35; border:1px solid #1a3a5a; border-radius:8px;
-      padding:14px; font-size:12px; line-height:1.8; color:#aabbcc;
-      white-space:pre-wrap; min-height:100px; max-height:260px; overflow-y:auto;
-    }
-    .answer-box.loading { color:#5a7a9a; font-style:italic; }
-
-    /* ── Log ── */
-    .log-box {
-      background:#060f1c; border:1px solid #1a2a4a; border-radius:8px;
-      padding:10px; font-size:11px; color:#3a6a5a; font-family:monospace;
-      height:80px; overflow-y:auto; line-height:1.6;
-    }
-
-    /* ── Graph area ── */
-    .graph-area { position:relative; background:#080f1e; }
-    .graph-frame { width:100%; height:100%; border:none; }
-
-    .graph-overlay {
-      position:absolute; inset:0; background:#0A1628ee;
-      display:flex; flex-direction:column; align-items:center;
-      justify-content:center; gap:12px;
-    }
-    .graph-overlay.hidden { display:none; }
-    .overlay-icon { font-size:48px; opacity:.3; }
-    .overlay-text { font-size:14px; color:#5a7a9a; text-align:center; }
+    .btn-primary { background: var(--accent); color: var(--bg); }
+    .btn-primary:hover { background: #00b888; }
+    .btn-secondary { background: var(--bg3); color: var(--accent); border: 1px solid var(--border2); }
+    .btn-secondary:hover { border-color: var(--accent); }
+    .btn-danger { background: var(--bg3); color: var(--danger); border: 1px solid #3a1a1a; }
+    .btn-danger:hover { border-color: var(--danger); }
+    .btn:disabled { opacity: .35; cursor: not-allowed; }
+    .btn-row { display: flex; flex-direction: column; gap: 6px; }
 
     /* ── Progress bar ── */
     .progress-bar {
-      height:2px; background:#00C896; width:0%;
-      transition:width .3s; border-radius:1px;
-      margin-top:8px;
+      height: 2px;
+      background: var(--accent);
+      width: 0%;
+      transition: width .4s;
+      border-radius: 1px;
+      margin-top: 6px;
+    }
+
+    /* ── Mode selector ── */
+    .mode-row {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .mode-btn {
+      flex: 1;
+      min-width: 60px;
+      padding: 5px 6px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 5px;
+      font-size: 10px;
+      cursor: pointer;
+      transition: all .2s;
+      font-weight: 500;
+      text-align: center;
+    }
+    .mode-btn.active { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 700; }
+
+    /* ── Query area ── */
+    .query-textarea {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      padding: 10px;
+      font-size: 12px;
+      resize: none;
+      outline: none;
+      line-height: 1.6;
+      font-family: var(--font);
+    }
+    .query-textarea:focus { border-color: var(--accent); }
+    .query-textarea::placeholder { color: var(--muted); }
+
+    /* ── Answer box ── */
+    .answer-box {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 12px;
+      line-height: 1.8;
+      color: #aabbcc;
+      white-space: pre-wrap;
+      min-height: 80px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    .answer-box.loading { color: var(--muted); font-style: italic; }
+
+    /* ── Log ── */
+    .log-box {
+      background: #050b14;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 10px;
+      color: #3a9a6a;
+      font-family: var(--mono);
+      height: 70px;
+      overflow-y: auto;
+      line-height: 1.6;
+    }
+
+    /* ── Graph canvas panels ── */
+    .graph-area {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* All panels */
+    .panel {
+      position: absolute;
+      inset: 0;
+      display: none;
+    }
+    .panel.active { display: block; }
+
+    /* War room full graph */
+    #panel-warroom .graph-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: var(--bg);
+    }
+
+    /* Graph overlay */
+    .graph-overlay {
+      position: absolute;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    .graph-overlay.hidden { display: none; }
+    .overlay-icon { font-size: 52px; opacity: .25; }
+    .overlay-text { font-size: 13px; color: var(--muted); text-align: center; line-height: 1.8; }
+
+    /* ── Domain panel layout ── */
+    .domain-panel {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      height: 100%;
+      background: var(--bg);
+    }
+    .domain-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+    }
+    .domain-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 2px;
+    }
+    .domain-meta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-left: auto;
+    }
+    .domain-body {
+      display: grid;
+      grid-template-columns: 1fr 220px;
+      overflow: hidden;
+    }
+    .domain-graph-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .domain-sidebar {
+      border-left: 1px solid var(--border);
+      padding: 12px;
+      overflow-y: auto;
+      background: var(--bg2);
+    }
+    .alert-item {
+      background: #1a0b0b;
+      border: 1px solid #3a1a1a;
+      border-left: 3px solid var(--danger);
+      border-radius: 5px;
+      padding: 8px;
+      margin-bottom: 6px;
+      font-size: 10px;
+      line-height: 1.6;
+    }
+    .alert-entities {
+      font-weight: 600;
+      color: #ff8080;
+      margin-bottom: 2px;
+    }
+    .alert-meta {
+      color: var(--muted);
+    }
+
+    /* ── Cross-domain panel ── */
+    .cross-domain-panel {
+      height: 100%;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+    .cross-legend {
+      display: flex;
+      gap: 12px;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      color: var(--muted);
+    }
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    /* ── Confidence histogram ── */
+    .histogram {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 40px;
+      margin-top: 8px;
+    }
+    .hist-bar {
+      flex: 1;
+      background: var(--accent);
+      border-radius: 2px 2px 0 0;
+      min-height: 2px;
+      transition: height .3s;
+      position: relative;
+    }
+    .hist-bar.stale { background: var(--stale); }
+    .hist-bar:hover::after {
+      content: attr(data-label);
+      position: absolute;
+      bottom: 110%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 9px;
+      white-space: nowrap;
+      z-index: 100;
+      color: var(--text);
+    }
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 6px;
+      padding: 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .upload-zone:hover { border-color: var(--accent); background: #0a1d20; }
+    .upload-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+    /* ── Blast radius results ── */
+    .blast-result {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px;
+      margin-top: 8px;
+    }
+    .blast-path {
+      font-size: 10px;
+      color: #88bbdd;
+      margin: 3px 0;
+      font-family: var(--mono);
+    }
+    .blast-conf {
+      color: var(--accent);
+      font-weight: 600;
     }
   </style>
 </head>
 <body>
 
+<!-- ══ Header ══════════════════════════════════════════════════════════════════ -->
 <div class="header">
-  <div class="logo">INDRA</div>
-  <div class="tagline">Intelligence Graph — Autonomous Geopolitical Analysis</div>
-  <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <img class="brand-mark" src="/static/logo.png" alt="INDRA" />
+    <div>
+      <div class="logo-sub">Autonomous Intelligence Graph v2</div>
+    </div>
+  </div>
+  <div class="header-stats">
+    <div class="hstat">
+      <div class="hstat-num" id="hArticles">—</div>
+      <div class="hstat-label">Articles</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-num" id="hNodes">—</div>
+      <div class="hstat-label">LightRAG Nodes</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-num" id="hTypedEntities">—</div>
+      <div class="hstat-label">Typed Entities</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-num" id="hTypedEdges">—</div>
+      <div class="hstat-label">Typed Edges</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-num" id="hStale" style="color:var(--warn)">—</div>
+      <div class="hstat-label">Stale Edges</div>
+    </div>
     <div class="status-dot" id="statusDot"></div>
-    <span class="status-label" id="statusLabel">Checking...</span>
   </div>
 </div>
 
-<div class="layout">
+<!-- ══ Tab bar ══════════════════════════════════════════════════════════════════ -->
+<div class="tab-bar">
+  <button class="tab active" id="tab-warroom"  onclick="switchTab('warroom')">⬡ WAR ROOM</button>
+  <button class="tab"        id="tab-geopolitics" onclick="switchTab('geopolitics')">🌍 GEOPOLITICS</button>
+  <button class="tab"        id="tab-economics"   onclick="switchTab('economics')">📈 ECONOMICS</button>
+  <button class="tab"        id="tab-defense"     onclick="switchTab('defense')">🛡 DEFENSE</button>
+  <button class="tab"        id="tab-technology"  onclick="switchTab('technology')">💡 TECHNOLOGY</button>
+  <button class="tab"        id="tab-climate"     onclick="switchTab('climate')">🌱 CLIMATE</button>
+  <button class="tab"        id="tab-society"     onclick="switchTab('society')">👥 SOCIETY</button>
+  <button class="tab"        id="tab-crossdomain" onclick="switchTab('crossdomain')">🔀 CROSS-DOMAIN</button>
+</div>
+
+<!-- ══ Main ════════════════════════════════════════════════════════════════════ -->
+<div class="main">
+
+  <!-- Sidebar -->
   <div class="sidebar">
 
-    <!-- Stats -->
-    <div>
+    <!-- Graph Status -->
+    <div class="sidebar-section">
       <div class="section-label">Graph Status</div>
-      <div class="stats">
+      <div class="stat-grid">
         <div class="stat-card">
           <div class="stat-num" id="articleCount">—</div>
-          <div class="stat-label">Articles Ingested</div>
+          <div class="stat-label">Articles</div>
         </div>
         <div class="stat-card">
           <div class="stat-num" id="nodeCount">—</div>
-          <div class="stat-label">Graph Entities</div>
+          <div class="stat-label">Nodes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="typedEntityCount">—</div>
+          <div class="stat-label">Typed Entities</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="staleCount" style="color:var(--warn)">—</div>
+          <div class="stat-label">Stale Edges</div>
+        </div>
+      </div>
+      <!-- Confidence histogram -->
+      <div style="margin-top:10px">
+        <div class="section-label" style="margin-bottom:4px">Confidence Distribution</div>
+        <div class="histogram" id="confidenceHistogram">
+          <div class="hist-bar" style="height:2px"></div>
         </div>
       </div>
     </div>
 
-    <!-- Data controls -->
-    <div>
+    <!-- Pipeline Controls -->
+    <div class="sidebar-section">
       <div class="section-label">Data Pipeline</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <button class="btn btn-primary" id="bootstrapBtn" onclick="runBootstrap()">
-          ⬇ Bootstrap (load 7 days)
-        </button>
-        <button class="btn btn-secondary" id="syncBtn" onclick="runSync()">
-          ↺ Sync now (last 24h)
-        </button>
-        <div class="progress-bar" id="progressBar"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="bootstrapBtn" onclick="runBootstrap()">⬇ Bootstrap</button>
+        <button class="btn btn-secondary" id="syncBtn" onclick="runSync()">↺ Sync Now</button>
       </div>
+      <div class="progress-bar" id="progressBar"></div>
     </div>
 
     <!-- Manual PDF upload -->
-    <div>
-      <div class="section-label">Manual Ingest (optional)</div>
+    <div class="sidebar-section">
+      <div class="section-label">Manual Ingest</div>
       <div class="upload-zone" onclick="document.getElementById('pdfInput').click()">
         <input type="file" id="pdfInput" accept=".pdf" style="display:none" onchange="uploadPDF(this)">
-        <div class="upload-icon">📄</div>
-        <div class="upload-hint">Drop a PDF or click to upload</div>
+        <div>📄</div>
+        <div class="upload-hint">Drop PDF or click to upload</div>
       </div>
     </div>
 
-    <!-- Query -->
-    <div>
+    <!-- Intelligence Query -->
+    <div class="sidebar-section">
       <div class="section-label">Intelligence Query</div>
       <div class="mode-row">
-        <button class="mode-btn active" id="mode-hybrid" onclick="setMode('hybrid')">Hybrid</button>
-        <button class="mode-btn" id="mode-global" onclick="setMode('global')">Global</button>
-        <button class="mode-btn" id="mode-local" onclick="setMode('local')">Local</button>
+        <button class="mode-btn active" id="mode-hybrid"      onclick="setMode('hybrid')">Hybrid</button>
+        <button class="mode-btn"        id="mode-global"      onclick="setMode('global')">Global</button>
+        <button class="mode-btn"        id="mode-local"       onclick="setMode('local')">Local</button>
+        <button class="mode-btn"        id="mode-blast_radius" onclick="setMode('blast_radius')" title="Causal impact BFS — enter an entity name">⚡ Blast</button>
       </div>
-      <textarea class="query-textarea" id="queryInput" rows="4"
+      <textarea class="query-textarea" id="queryInput" rows="3"
         placeholder="How is Pakistan's economic crisis affecting India's defence posture?"></textarea>
-      <div style="margin-top:8px">
-        <button class="btn btn-primary" id="queryBtn" onclick="runQuery()">
-          Analyze Intelligence →
-        </button>
+      <div style="margin-top:6px">
+        <button class="btn btn-primary" id="queryBtn" onclick="runQuery()">Analyze Intelligence →</button>
       </div>
     </div>
 
     <!-- Answer -->
-    <div>
+    <div class="sidebar-section">
       <div class="section-label">INDRA Response</div>
-      <div class="answer-box" id="answerBox">
-        Run bootstrap to load intelligence data, then ask a question.
-      </div>
+      <div class="answer-box" id="answerBox">Run bootstrap to load intelligence data, then ask a question.</div>
     </div>
 
-    <!-- Log -->
-    <div>
+    <!-- System Log -->
+    <div class="sidebar-section">
       <div class="section-label">System Log</div>
-      <div class="log-box" id="logBox">INDRA ready.</div>
+      <div class="log-box" id="logBox">INDRA v2 ready.</div>
     </div>
 
-  </div>
+  </div><!-- /sidebar -->
 
-  <!-- Graph -->
+  <!-- Graph Area with Panels -->
   <div class="graph-area">
-    <div class="graph-overlay" id="graphOverlay">
-      <div class="overlay-icon">⬡</div>
-      <div class="overlay-text">
-        Graph will appear here after bootstrap.<br>
-        <span style="font-size:11px;color:#3a5a7a">Click "Bootstrap" to load intelligence data.</span>
+
+    <!-- WAR ROOM -->
+    <div class="panel active" id="panel-warroom">
+      <div class="graph-overlay" id="graphOverlay">
+        <div class="overlay-icon">⬡</div>
+        <div class="overlay-text">
+          War Room graph will appear after bootstrap.<br>
+          <span style="font-size:11px;opacity:.6">Click Bootstrap to load intelligence data.</span>
+        </div>
+      </div>
+      <iframe class="graph-frame" id="graphFrame" src="about:blank" style="width:100%;height:100%;border:none;"></iframe>
+    </div>
+
+    <!-- DOMAIN PANELS (generated dynamically) -->
+    <div class="panel" id="panel-geopolitics">
+      <div class="domain-panel" id="domain-geopolitics"></div>
+    </div>
+    <div class="panel" id="panel-economics">
+      <div class="domain-panel" id="domain-economics"></div>
+    </div>
+    <div class="panel" id="panel-defense">
+      <div class="domain-panel" id="domain-defense"></div>
+    </div>
+    <div class="panel" id="panel-technology">
+      <div class="domain-panel" id="domain-technology"></div>
+    </div>
+    <div class="panel" id="panel-climate">
+      <div class="domain-panel" id="domain-climate"></div>
+    </div>
+    <div class="panel" id="panel-society">
+      <div class="domain-panel" id="domain-society"></div>
+    </div>
+
+    <!-- CROSS-DOMAIN -->
+    <div class="panel" id="panel-crossdomain">
+      <div class="cross-domain-panel">
+        <div class="cross-legend" id="crossLegend">
+          <span style="font-size:11px;color:var(--accent);font-weight:600;">Cross-Domain Intelligence Links</span>
+        </div>
+        <iframe id="crossFrame" src="about:blank" style="width:100%;height:100%;border:none;"></iframe>
       </div>
     </div>
-    <iframe class="graph-frame" id="graphFrame" src="about:blank"></iframe>
-  </div>
-</div>
+
+  </div><!-- /graph-area -->
+</div><!-- /main -->
 
 <script>
-let currentMode = "hybrid";
+/* ═══════════════════════════════════════════════════════════════════════════════
+   INDRA v2 — Frontend Intelligence Engine
+   Uses vis.js 4.x for graph rendering (already CDN-loaded inside iframes)
+═══════════════════════════════════════════════════════════════════════════════ */
+
+let currentMode   = 'hybrid';
+let currentTab    = 'warroom';
+let alertsData    = {};
+
+// ── Domain colours ─────────────────────────────────────────────────────────────
+const DOMAIN_COLORS = {
+  geopolitics: '#00d4a0',
+  economics:   '#0099ff',
+  defense:     '#ef4444',
+  technology:  '#a855f7',
+  climate:     '#22c55e',
+  society:     '#f59e0b',
+  general:     '#5a7a9a',
+};
+
+// ── Entity type colours ────────────────────────────────────────────────────────
+const ENTITY_TYPE_COLORS = {
+  NATION:             '#00d4a0',
+  LEADER:             '#0099ff',
+  ORGANIZATION:       '#a855f7',
+  MILITARY_UNIT:      '#ef4444',
+  TREATY:             '#22c55e',
+  ECONOMIC_INDICATOR: '#f59e0b',
+  CONFLICT_ZONE:      '#f97316',
+  POLICY:             '#06b6d4',
+  TECHNOLOGY:         '#8b5cf6',
+  NATURAL_RESOURCE:   '#84cc16',
+  ALLIANCE:           '#14b8a6',
+  SANCTION:           '#fb7185',
+  UNKNOWN:            '#5a7a9a',
+};
 
 // ── Logging ───────────────────────────────────────────────────────────────────
 function log(msg) {
-  const box = document.getElementById("logBox");
+  const box = document.getElementById('logBox');
   const ts  = new Date().toLocaleTimeString();
   box.textContent += `\n[${ts}] ${msg}`;
   box.scrollTop = box.scrollHeight;
 }
 
-// ── Status polling ────────────────────────────────────────────────────────────
-async function checkStatus() {
-  try {
-    const res  = await fetch("/api/status");
-    const data = await res.json();
-    document.getElementById("articleCount").textContent = data.articles_ingested || 0;
-    document.getElementById("statusLabel").textContent  = data.graph_ready ? "Graph Active" : "No Data";
-    document.getElementById("statusDot").style.background = data.graph_ready ? "#00C896" : "#EF9F27";
-    if (data.graph_ready) loadGraphData();
-  } catch(e) {
-    document.getElementById("statusLabel").textContent = "Server offline";
-    document.getElementById("statusDot").style.background = "#E24B4A";
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`tab-${name}`).classList.add('active');
+  document.getElementById(`panel-${name}`).classList.add('active');
+  currentTab = name;
+
+  if (name !== 'warroom' && name !== 'crossdomain') {
+    loadDomainPanel(name);
+  } else if (name === 'crossdomain') {
+    loadCrossDomainPanel();
   }
 }
 
-// ── Graph data ────────────────────────────────────────────────────────────────
-async function loadGraphData() {
+// ── Status / Stats refresh ───────────────────────────────────────────────────
+async function checkStatus() {
   try {
-    const res  = await fetch("/api/graph-data");
+    const res  = await fetch('/api/status');
     const data = await res.json();
-    document.getElementById("nodeCount").textContent = data.total_nodes || 0;
-    if (data.nodes && data.nodes.length > 0) {
-      document.getElementById("graphOverlay").classList.add("hidden");
-      renderGraph(data.nodes, data.edges);
+
+    const count = data.articles_ingested || 0;
+    document.getElementById('articleCount').textContent = count;
+    document.getElementById('hArticles').textContent    = count;
+    document.getElementById('statusDot').style.background =
+      data.graph_ready ? 'var(--accent)' : 'var(--warn)';
+
+    if (data.typed_graph) {
+      const tg = data.typed_graph;
+      document.getElementById('typedEntityCount').textContent = tg.total_entities || 0;
+      document.getElementById('hTypedEntities').textContent  = tg.total_entities || 0;
+      document.getElementById('hTypedEdges').textContent     = tg.total_edges    || 0;
+      document.getElementById('staleCount').textContent      = tg.stale_edges    || 0;
+      document.getElementById('hStale').textContent          = tg.stale_edges    || 0;
+    }
+
+    if (data.graph_ready) loadWarRoomGraph();
+  } catch(e) {
+    document.getElementById('statusDot').style.background = 'var(--danger)';
+  }
+}
+
+// ── Confidence histogram ──────────────────────────────────────────────────────
+async function loadConfidenceHistogram() {
+  try {
+    const res  = await fetch('/api/graph-confidence');
+    const data = await res.json();
+    if (!data.histogram) return;
+
+    const hist = document.getElementById('confidenceHistogram');
+    const entries = Object.entries(data.histogram);
+    const maxVal  = Math.max(...entries.map(([,v]) => v), 1);
+
+    hist.innerHTML = entries.map(([label, count]) => {
+      const pct    = Math.round((count / maxVal) * 100);
+      const [low]  = label.split('-').map(Number);
+      const isStale = low < 0.15;
+      return `<div class="hist-bar${isStale ? ' stale' : ''}"
+        style="height:${Math.max(pct,2)}%"
+        data-label="${label}: ${count} edges"
+        title="${label}: ${count} edges"></div>`;
+    }).join('');
+  } catch(e) {}
+}
+
+// ── Domain Alerts ─────────────────────────────────────────────────────────────
+async function loadAlerts() {
+  try {
+    const res  = await fetch('/api/domain-alerts');
+    const data = await res.json();
+    alertsData = {};
+    for (const a of (data.alerts || [])) {
+      if (!alertsData[a.domain]) alertsData[a.domain] = [];
+      alertsData[a.domain].push(a);
+    }
+    // Badge counts
+    for (const domain of ['geopolitics','economics','defense','technology','climate','society']) {
+      const tab   = document.getElementById(`tab-${domain}`);
+      const count = (alertsData[domain] || []).length;
+      let badge   = tab.querySelector('.alert-badge');
+      if (count > 0) {
+        if (!badge) {
+          badge = document.createElement('span');
+          badge.className = 'alert-badge';
+          tab.appendChild(badge);
+        }
+        badge.textContent = count;
+      } else if (badge) {
+        badge.remove();
+      }
     }
   } catch(e) {}
 }
 
-function renderGraph(nodes, edges) {
-  // Build a self-contained pyvis-style HTML and inject into iframe
-  const frame   = document.getElementById("graphFrame");
-  const doc     = frame.contentDocument || frame.contentWindow.document;
-  const graphHtml = buildVisGraph(nodes, edges);
-  doc.open(); doc.write(graphHtml); doc.close();
+// ── War Room full graph ───────────────────────────────────────────────────────
+async function loadWarRoomGraph() {
+  try {
+    const res  = await fetch('/api/graph-data');
+    const data = await res.json();
+    document.getElementById('nodeCount').textContent = data.total_nodes || 0;
+    document.getElementById('hNodes').textContent    = data.total_nodes || 0;
+
+    if (data.nodes && data.nodes.length > 0) {
+      document.getElementById('graphOverlay').classList.add('hidden');
+      renderVisGraph('graphFrame', data.nodes, data.edges, {warRoom: true});
+    }
+  } catch(e) {}
 }
 
-function buildVisGraph(nodes, edges) {
-  const nodeJs = nodes.map(n =>
-    `{id:${JSON.stringify(n.id)},label:${JSON.stringify(n.label)},color:"#00C896",size:20,font:{color:"#fff",size:12}}`
-  ).join(",");
-  const edgeJs = edges.map(e =>
-    `{from:${JSON.stringify(e.from)},to:${JSON.stringify(e.to)},label:${JSON.stringify(e.label||'')},color:{color:"#1a4a3a",opacity:0.7},font:{color:"#5a9a7a",size:10}}`
-  ).join(",");
+// ── Domain panel ─────────────────────────────────────────────────────────────
+async function loadDomainPanel(domain) {
+  const container = document.getElementById(`domain-${domain}`);
+  container.innerHTML = '<div style="padding:20px;color:var(--muted);font-size:12px">Loading...</div>';
 
-  return `<!DOCTYPE html><html><head>
+  try {
+    const res  = await fetch(`/api/domain/${domain}`);
+    const data = await res.json();
+
+    const nodeCount = data.nodes ? data.nodes.length : 0;
+    const edgeCount = data.edges ? data.edges.length : 0;
+    const myAlerts  = alertsData[domain] || [];
+
+    const color = DOMAIN_COLORS[domain] || '#5a7a9a';
+
+    container.innerHTML = `
+      <div class="domain-header">
+        <div class="domain-title" style="color:${color}">${domain.toUpperCase()}</div>
+        <div class="domain-meta">${nodeCount} entities · ${edgeCount} edges · ${myAlerts.length} alerts</div>
+        <div style="margin-left:12px">
+          <input type="text" id="mini-query-${domain}" placeholder="Ask about ${domain}..."
+            style="background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--text);
+                   padding:5px 10px;font-size:11px;outline:none;width:200px;"
+            onkeydown="if(e.key==='Enter')runDomainQuery('${domain}')">
+          <button onclick="runDomainQuery('${domain}')"
+            style="background:${color};color:var(--bg);border:none;border-radius:5px;
+                   padding:5px 10px;font-size:11px;cursor:pointer;margin-left:4px;font-weight:600;">
+            Ask →
+          </button>
+        </div>
+      </div>
+      <div class="domain-body">
+        <iframe id="frame-${domain}" class="domain-graph-frame" src="about:blank"></iframe>
+        <div class="domain-sidebar">
+          <div class="section-label">🔴 Alerts (>30% drop)</div>
+          <div id="alerts-${domain}"></div>
+          <div class="section-label" style="margin-top:12px">Entity Types</div>
+          <div id="types-${domain}" style="font-size:10px;color:var(--muted);line-height:2"></div>
+        </div>
+      </div>`;
+
+    // Render alerts
+    const alertsEl = document.getElementById(`alerts-${domain}`);
+    if (myAlerts.length === 0) {
+      alertsEl.innerHTML = '<div style="font-size:10px;color:var(--muted)">No significant drops detected.</div>';
+    } else {
+      alertsEl.innerHTML = myAlerts.slice(0,5).map(a => `
+        <div class="alert-item">
+          <div class="alert-entities">${a.source} → ${a.target}</div>
+          <div class="alert-meta">${a.edge_type} · -${a.drop_pct}%</div>
+          <div class="alert-meta">${(a.confidence_now*100).toFixed(0)}% confidence now</div>
+        </div>`).join('');
+    }
+
+    // Render domain subgraph
+    if (data.nodes && data.nodes.length > 0) {
+      renderVisGraph(`frame-${domain}`, data.nodes, data.edges, {domainColor: color});
+    } else {
+      const frame = document.getElementById(`frame-${domain}`);
+      if (frame) {
+        const doc = frame.contentDocument || frame.contentWindow.document;
+        doc.open();
+        doc.write(`<html><body style="background:#080d18;display:flex;align-items:center;justify-content:center;height:100vh;color:#5a7a9a;font-family:Inter,sans-serif;font-size:13px">
+          No typed entities found for ${domain} yet.<br>Run bootstrap to populate.
+        </body></html>`);
+        doc.close();
+      }
+    }
+
+  } catch(e) {
+    container.innerHTML = `<div style="padding:20px;color:var(--danger);font-size:12px">Error: ${e.message}</div>`;
+  }
+}
+
+async function runDomainQuery(domain) {
+  const input = document.getElementById(`mini-query-${domain}`);
+  if (!input || !input.value.trim()) return;
+  const q = `[Domain: ${domain}] ${input.value.trim()}`;
+  document.getElementById('queryInput').value = q;
+  runQuery();
+}
+
+// ── Cross-domain panel ────────────────────────────────────────────────────────
+async function loadCrossDomainPanel() {
+  try {
+    const res  = await fetch('/api/cross-domain');
+    const data = await res.json();
+
+    // Collect all unique nodes from edges
+    const nodeMap = {};
+    for (const e of (data.edges || [])) {
+      if (!nodeMap[e.from]) nodeMap[e.from] = {id: e.from, label: e.from.replace(/_/g,' '), domain: e.src_domain};
+      if (!nodeMap[e.to])   nodeMap[e.to]   = {id: e.to,   label: e.to.replace(/_/g,' '),   domain: e.tgt_domain};
+    }
+    const nodes = Object.values(nodeMap);
+
+    const legend = document.getElementById('crossLegend');
+    const domainsUsed = [...new Set(nodes.map(n => n.domain))];
+    const pills = domainsUsed.map(d =>
+      `<div class="legend-item">
+        <div class="legend-dot" style="background:${DOMAIN_COLORS[d]||'#5a7a9a'}"></div>
+        <span>${d}</span>
+      </div>`
+    ).join('');
+    legend.innerHTML = `<span style="font-size:11px;color:var(--accent);font-weight:600;margin-right:12px">Cross-Domain Links (${data.count || 0})</span>${pills}`;
+
+    renderVisGraph('crossFrame', nodes, data.edges || [], {crossDomain: true});
+  } catch(e) {}
+}
+
+// ── vis.js graph builder (injected into iframe) ───────────────────────────────
+function renderVisGraph(frameId, nodes, edges, opts = {}) {
+  const frame = document.getElementById(frameId);
+  if (!frame) return;
+
+  const nodeJs = nodes.map(n => {
+    let color = opts.domainColor || ENTITY_TYPE_COLORS[n.type] || DOMAIN_COLORS[n.domain] || '#00d4a0';
+    if (opts.crossDomain && n.domain) color = DOMAIN_COLORS[n.domain] || '#5a7a9a';
+    const size = opts.warRoom ? 18 : 20;
+    return JSON.stringify({
+      id: n.id, label: (n.label || n.id).substring(0, 28), title: n.label,
+      color: {background: color, border: color + '88', highlight: {background: '#fff', border: color}},
+      font: {color: '#e2eaf5', size: 11},
+      size: size,
+    });
+  }).join(',');
+
+  const edgeJs = edges.map(e => {
+    const conf  = e.confidence || 1.0;
+    const stale = e.stale || false;
+    const color = stale ? '#3a4a5a' : (opts.domainColor || '#00d4a066');
+    return JSON.stringify({
+      from: e.from, to: e.to,
+      label: (e.label || '').substring(0, 20),
+      color: {color, opacity: stale ? 0.3 : Math.max(conf, 0.2)},
+      font: {color: '#5a7a9a', size: 9},
+      width: stale ? 0.5 : Math.max(conf * 2, 0.5),
+      dashes: stale,
+    });
+  }).join(',');
+
+  const html = `<!DOCTYPE html><html><head>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"><\/script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css">
   <style>
-    body,html{margin:0;padding:0;background:#0A1628;overflow:hidden;}
+    body,html{margin:0;padding:0;background:#080d18;overflow:hidden;}
     #graph{width:100vw;height:100vh;}
   </style></head><body>
   <div id="graph"></div>
@@ -285,70 +967,82 @@ function buildVisGraph(nodes, edges) {
     var nodes = new vis.DataSet([${nodeJs}]);
     var edges = new vis.DataSet([${edgeJs}]);
     var options = {
-      nodes:{borderWidth:1,borderColor:"#00C896",shape:"dot"},
-      edges:{smooth:{type:"curvedCW",roundness:0.2},arrows:{to:{enabled:true,scaleFactor:0.4}}},
-      physics:{forceAtlas2Based:{gravitationalConstant:-60,springLength:130},solver:"forceAtlas2Based"},
-      background:{color:"#0A1628"}
+      nodes: {shape:'dot', borderWidth:1},
+      edges: {
+        smooth:{type:'curvedCW',roundness:0.15},
+        arrows:{to:{enabled:true,scaleFactor:0.35}},
+        font:{multi:false}
+      },
+      physics: {
+        forceAtlas2Based:{gravitationalConstant:-55, springLength:140, springConstant:0.05},
+        solver:'forceAtlas2Based',
+        stabilization:{iterations:150}
+      },
+      interaction:{hover:true, tooltipDelay:150}
     };
-    new vis.Network(document.getElementById("graph"), {nodes,edges}, options);
+    new vis.Network(document.getElementById('graph'), {nodes, edges}, options);
   <\/script></body></html>`;
+
+  const doc = frame.contentDocument || frame.contentWindow.document;
+  doc.open(); doc.write(html); doc.close();
 }
 
-// ── Bootstrap ─────────────────────────────────────────────────────────────────
+// ── Bootstrap ────────────────────────────────────────────────────────────────
 async function runBootstrap() {
-  const btn = document.getElementById("bootstrapBtn");
-  const bar = document.getElementById("progressBar");
+  const btn = document.getElementById('bootstrapBtn');
+  const bar = document.getElementById('progressBar');
   btn.disabled = true;
-  btn.textContent = "⬇ Bootstrapping...";
-  bar.style.width = "30%";
-  log("Bootstrap started — pulling last 7 days from GDELT + RSS feeds...");
+  btn.textContent = '⬇ Bootstrapping...';
+  bar.style.width = '20%';
+  log('Bootstrap started...');
 
   try {
-    await fetch("/api/bootstrap", { method:"POST" });
-    bar.style.width = "60%";
-    log("Ingestion running in background — graph will update in 3-5 minutes...");
-
-    // Poll for completion
+    await fetch('/api/bootstrap', {method:'POST'});
+    bar.style.width = '40%';
+    log('Ingestion running in background (3-5 min)...');
     let polls = 0;
-    const interval = setInterval(async () => {
+    const iv = setInterval(async () => {
       polls++;
-      bar.style.width = Math.min(60 + polls * 5, 95) + "%";
+      bar.style.width = Math.min(40 + polls * 4, 95) + '%';
       await checkStatus();
-      if (polls > 40) {
-        clearInterval(interval);
-        bar.style.width = "100%";
+      await loadConfidenceHistogram();
+      await loadAlerts();
+      if (polls > 50) {
+        clearInterval(iv);
+        bar.style.width = '100%';
         btn.disabled = false;
-        btn.textContent = "⬇ Bootstrap (load 7 days)";
-        log("Bootstrap complete.");
-        setTimeout(() => bar.style.width = "0%", 2000);
+        btn.textContent = '⬇ Bootstrap';
+        log('Bootstrap complete.');
+        setTimeout(() => bar.style.width = '0%', 2000);
       }
-    }, 15000);
+    }, 10000);
   } catch(e) {
-    log("Bootstrap error: " + e.message);
+    log('Bootstrap error: ' + e.message);
     btn.disabled = false;
-    btn.textContent = "⬇ Bootstrap (load 7 days)";
+    btn.textContent = '⬇ Bootstrap';
   }
 }
 
-// ── Sync ──────────────────────────────────────────────────────────────────────
+// ── Sync ─────────────────────────────────────────────────────────────────────
 async function runSync() {
-  const btn = document.getElementById("syncBtn");
+  const btn = document.getElementById('syncBtn');
   btn.disabled = true;
-  btn.textContent = "↺ Syncing...";
-  log("Sync started — pulling last 24h...");
-
+  btn.textContent = '↺ Syncing...';
+  log('Sync started...');
   try {
-    await fetch("/api/sync", { method:"POST" });
-    log("Sync running in background...");
-    setTimeout(() => {
-      checkStatus();
+    await fetch('/api/sync', {method:'POST'});
+    log('Sync running in background...');
+    setTimeout(async () => {
+      await checkStatus();
+      await loadConfidenceHistogram();
+      await loadAlerts();
       btn.disabled = false;
-      btn.textContent = "↺ Sync now (last 24h)";
+      btn.textContent = '↺ Sync Now';
     }, 30000);
   } catch(e) {
-    log("Sync error: " + e.message);
+    log('Sync error: ' + e.message);
     btn.disabled = false;
-    btn.textContent = "↺ Sync now (last 24h)";
+    btn.textContent = '↺ Sync Now';
   }
 }
 
@@ -358,65 +1052,94 @@ async function uploadPDF(input) {
   if (!file) return;
   log(`Uploading ${file.name}...`);
   const form = new FormData();
-  form.append("file", file);
+  form.append('file', file);
   try {
-    const res  = await fetch("/api/ingest/pdf", { method:"POST", body:form });
+    const res  = await fetch('/api/ingest/pdf', {method:'POST', body:form});
     const data = await res.json();
     log(`Ingested ${file.name}: ${data.pages} pages`);
     checkStatus();
-  } catch(e) { log("Upload error: " + e.message); }
+  } catch(e) { log('Upload error: ' + e.message); }
 }
 
 // ── Query ─────────────────────────────────────────────────────────────────────
 async function runQuery() {
-  const question = document.getElementById("queryInput").value.trim();
-  if (!question) return;
+  const q = document.getElementById('queryInput').value.trim();
+  if (!q) return;
 
-  const btn    = document.getElementById("queryBtn");
-  const answer = document.getElementById("answerBox");
-
+  const btn    = document.getElementById('queryBtn');
+  const answer = document.getElementById('answerBox');
   btn.disabled    = true;
-  btn.textContent = "Analyzing...";
-  answer.textContent = "⟳ Traversing knowledge graph...";
-  answer.className   = "answer-box loading";
-  log(`Query: "${question.substring(0,60)}..."`);
+  btn.textContent = 'Analyzing...';
+  answer.textContent = '⟳ Traversing knowledge graph...';
+  answer.className   = 'answer-box loading';
+  log(`Query [${currentMode}]: "${q.substring(0,50)}..."`);
 
   try {
-    const res  = await fetch("/api/query", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({question, mode: currentMode})
+    const res  = await fetch('/api/query', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({question:q, mode:currentMode}),
     });
     const data = await res.json();
-    answer.textContent = data.answer || data.error || "No response";
-    answer.className   = "answer-box";
-    log("Query complete.");
-    loadGraphData();
-  } catch(e) {
-    answer.textContent = "Error: " + e.message;
-    answer.className   = "answer-box";
-    log("Query error: " + e.message);
-  }
 
+    if (currentMode === 'blast_radius' && data.blast_radius_data) {
+      const br = data.blast_radius_data;
+      const paths = (br.paths || []).slice(0, 6);
+      let text = `⚡ BLAST RADIUS: ${br.entity}\n`;
+      text += `${br.total_affected} entities affected at depth ≤${br.max_depth}\n\n`;
+      if (br.synthesis) text += br.synthesis;
+      else {
+        paths.forEach(p => {
+          text += `[D${p.depth} ${Math.round(p.joint_confidence*100)}%] ${p.path_labels.join(' → ')}\n`;
+        });
+      }
+      answer.textContent = text;
+    } else {
+      answer.textContent = data.answer || data.error || 'No response.';
+    }
+    answer.className = 'answer-box';
+    log('Query complete.');
+    if (currentTab === 'warroom') loadWarRoomGraph();
+  } catch(e) {
+    answer.textContent = 'Error: ' + e.message;
+    answer.className   = 'answer-box';
+    log('Query error: ' + e.message);
+  }
   btn.disabled    = false;
-  btn.textContent = "Analyze Intelligence →";
+  btn.textContent = 'Analyze Intelligence →';
 }
 
-// ── Mode selector ─────────────────────────────────────────────────────────────
+// ── Mode selector ──────────────────────────────────────────────────────────────
 function setMode(mode) {
   currentMode = mode;
-  document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
-  document.getElementById(`mode-${mode}`).classList.add("active");
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`mode-${mode}`).classList.add('active');
+  if (mode === 'blast_radius') {
+    document.getElementById('queryInput').placeholder =
+      'Enter entity name (e.g. IRAN, PAKISTAN, NATO) — gets causal impact chain';
+  } else {
+    document.getElementById('queryInput').placeholder =
+      'How is Pakistan\'s economic crisis affecting India\'s defence posture?';
+  }
 }
 
-// ── Enter key to query ────────────────────────────────────────────────────────
-document.addEventListener("keydown", e => {
-  if (e.key === "Enter" && e.ctrlKey) runQuery();
+// ── Keyboard shortcuts ─────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.ctrlKey) runQuery();
 });
 
 // ── Init ──────────────────────────────────────────────────────────────────────
-checkStatus();
-setInterval(checkStatus, 30000);
+(async function init() {
+  await checkStatus();
+  await loadConfidenceHistogram();
+  await loadAlerts();
+})();
+
+setInterval(async () => {
+  await checkStatus();
+  await loadConfidenceHistogram();
+  await loadAlerts();
+}, 30000);
 </script>
 </body>
 </html>
