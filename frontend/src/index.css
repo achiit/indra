@@ -31,3 +31,13 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 ::-webkit-scrollbar-thumb:hover { background: #3a3a4a; }
+
+/* Bottom live intelligence ticker */
+@keyframes indra-ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-33.333%); }
+}
+
+.animate-ticker {
+  animation: indra-ticker 55s linear infinite;
+}

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useAlertStore } from '@/store/alertStore'
 import { fetchAlerts, markAlertRead, markAllRead } from '@/api/alerts'
 import { AlertCard } from '@/components/cards/AlertCard'
@@ -9,12 +9,15 @@ import { IndraLogo } from '@/components/branding/IndraLogo'
 
 export function Alerts() {
   const { alerts, setAlerts, markRead, markAllRead: storeMarkAll } = useAlertStore()
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchAlerts().then(setAlerts)
+    fetchAlerts()
+      .then(setAlerts)
+      .finally(() => setLoading(false))
   }, [setAlerts])
 
-  if (!alerts.length) return <LoadingPulse text="LOADING ALERTS..." />
+  if (loading) return <LoadingPulse text="LOADING ALERTS..." />
 
   return (
     <div className="p-6 max-w-4xl mx-auto h-full overflow-y-auto">
@@ -36,18 +39,22 @@ export function Alerts() {
       </div>
 
       <div className="flex flex-col gap-4">
-        {alerts.map(a => (
-          <AlertCard 
-            key={a.id} 
-            alert={a} 
-            onClick={() => {
-              if(!a.read) {
-                markAlertRead(a.id)
-                markRead(a.id)
-              }
-            }} 
-          />
-        ))}
+        {alerts.length === 0 ? (
+          <div className="text-sm text-zinc-500 text-center py-12">No alerts in this window.</div>
+        ) : (
+          alerts.map((a) => (
+            <AlertCard
+              key={a.id}
+              alert={a}
+              onClick={() => {
+                if (!a.read) {
+                  markAlertRead(a.id)
+                  markRead(a.id)
+                }
+              }}
+            />
+          ))
+        )}
       </div>
     </div>
   )

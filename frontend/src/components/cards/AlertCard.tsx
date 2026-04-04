@@ -53,9 +53,11 @@ export function AlertCard({ alert, compact, onClick }: AlertCardProps) {
           )}
         </div>
         {!compact && <p className="text-xs text-zinc-400 mt-1 truncate">{alert.message}</p>}
-        <div className="flex items-center gap-3 mt-2">
+        <div className="flex items-center gap-3 mt-2 flex-wrap">
           <ConfidenceDot value={alert.confidence_after} showLabel />
-          <span className="text-[11px] text-zinc-500">{formatRelativeTime(alert.created_at)}</span>
+          <span className="text-[10px] text-zinc-600 font-mono uppercase tracking-wide">
+            Last verified: {formatRelativeTime(alert.created_at)}
+          </span>
           <span className="text-[11px] font-semibold text-red-400">−{Math.round(dropPct)}%</span>
         </div>
       </div>
@@ -63,7 +65,10 @@ export function AlertCard({ alert, compact, onClick }: AlertCardProps) {
       {!compact && (
         <button
           className="text-xs text-purple-400 hover:text-purple-300 flex-shrink-0 self-center font-medium"
-          onClick={(e) => { e.stopPropagation(); nav(`/blast-radius?entity=${alert.entity_id}`) }}
+          onClick={(e) => {
+            e.stopPropagation()
+            nav(`/blast-radius?query=${encodeURIComponent(alert.entity_id)}`)
+          }}
         >
           Investigate →
         </button>

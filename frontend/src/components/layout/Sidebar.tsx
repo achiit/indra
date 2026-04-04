@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Globe, TrendingUp, Shield, Cpu, Leaf, Users, Zap, Bell, Bookmark, Clock, FileText, Settings, LogOut } from 'lucide-react'
+import { LayoutDashboard, Globe, TrendingUp, Shield, Cpu, Leaf, Users, Zap, ScrollText, Bell, Bookmark, Clock, FileText, Settings, LogOut } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useAlertStore } from '@/store/alertStore'
 import { IndraLogo } from '@/components/branding/IndraLogo'
@@ -19,6 +19,7 @@ export function Sidebar() {
     { to: '/dashboard/society',    icon: Users,           label: 'Society' },
     { divider: true },
     { to: '/blast-radius',         icon: Zap,             label: 'Blast Radius', highlight: true },
+    { to: '/briefing',             icon: ScrollText,      label: 'Morning Brief' },
     { to: '/alerts',               icon: Bell,            label: 'Alerts', badge: unreadCount },
     { to: '/watchlist',            icon: Bookmark,        label: 'Watchlist' },
     { to: '/history',              icon: Clock,           label: 'History' },

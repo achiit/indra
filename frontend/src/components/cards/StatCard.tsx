@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import type { ReactNode } from 'react'
+import { formatRelativeTime } from '@/lib/utils'
 
 interface StatCardProps {
   title: string
@@ -11,9 +12,11 @@ interface StatCardProps {
   sub?: string
   index?: number
   glowColor?: string
+  /** ISO timestamp — shown as “Last verified: … ago” for gov-style provenance */
+  lastVerified?: string | null
 }
 
-export function StatCard({ title, value, delta, deltaPositive, icon, sub, index = 0, glowColor }: StatCardProps) {
+export function StatCard({ title, value, delta, deltaPositive, icon, sub, index = 0, glowColor, lastVerified }: StatCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -39,6 +42,11 @@ export function StatCard({ title, value, delta, deltaPositive, icon, sub, index 
         )}
       </div>
       {sub && <p className="mt-1 text-xs text-zinc-500">{sub}</p>}
+      {lastVerified && (
+        <p className="mt-2 text-[10px] text-zinc-600 font-mono uppercase tracking-wide">
+          Last verified: {formatRelativeTime(lastVerified)}
+        </p>
+      )}
     </motion.div>
   )
 }

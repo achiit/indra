@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -7,14 +8,29 @@ import type { BlastRadiusResult } from '@/types/indra'
 import { EntityTypeBadge } from '@/components/shared/EntityTypeBadge'
 import { LoadingPulse } from '@/components/shared/LoadingPulse'
 import { KnowledgeGraph } from '@/components/graph/KnowledgeGraph'
-import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { IndraLogo } from '@/components/branding/IndraLogo'
 
 export function BlastRadius() {
+  const [searchParams] = useSearchParams()
+  const seeded = useRef(false)
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<BlastRadiusResult | null>(null)
+
+  useEffect(() => {
+    const q = searchParams.get('query') || searchParams.get('entity')
+    if (!q || seeded.current) return
+    seeded.current = true
+    const decoded = decodeURIComponent(q).replace(/_/g, ' ')
+    setQuery(decoded)
+    setLoading(true)
+    setResult(null)
+    runBlastRadius(decoded)
+      .then((res) => setResult(res))
+      .catch(() => setResult(null))
+      .finally(() => setLoading(false))
+  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -53,7 +69,7 @@ export function BlastRadius() {
     <div className="h-full flex flex-col items-center bg-[#0A0A0F] p-6 max-w-[1600px] mx-auto overflow-y-auto">
       
       {/* Hero Header */}
-      <div className={cn("transition-all duration-700 w-full flex flex-col items-center", result ? "mt-2 mb-6" : "mt-32 mb-12")}>
+      <div className={cn('w-full flex flex-col items-center', result ? 'mt-4 mb-6' : 'mt-16 mb-10')}>
         <IndraLogo
           height={72}
           className="mb-6 drop-shadow-[0_0_28px_rgba(124,58,237,0.2)]"
@@ -85,19 +101,14 @@ export function BlastRadius() {
       </div>
 
       {loading && (
-        <div className="flex-1 w-full flex items-center justify-center">
-          <LoadingPulse text="MAPPING CAUSAL CHAINS ACROSS 6 DOMAINS..." className="scale-125" />
+        <div className="flex-1 w-full flex items-center justify-center py-8">
+          <LoadingPulse text="MAPPING CAUSAL CHAINS ACROSS 6 DOMAINS..." />
         </div>
       )}
 
       {/* Results View */}
       {result && !loading && !result.error && (
-        <motion.div 
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="w-full grid grid-cols-1 xl:grid-cols-5 gap-6"
-        >
+        <div className="w-full grid grid-cols-1 xl:grid-cols-5 gap-6">
           {/* Graph Column */}
           <div className="xl:col-span-3 h-[600px] rounded-xl border border-[#2A2A3A] bg-[#111118] overflow-hidden relative shadow-lg">
              <div className="absolute top-4 left-4 z-10 pointers-events-none bg-[#16161F]/80 backdrop-blur p-3 rounded-lg border border-[#2A2A3A]">
@@ -160,16 +171,12 @@ export function BlastRadius() {
               ))}
             </div>
           </div>
-        </motion.div>
+        </div>
       )}
 
       {/* Error View */}
       {result && !loading && result.error && (
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-xl mx-auto bg-red-500/10 border border-red-500/30 p-8 rounded-xl flex flex-col items-center justify-center text-center mt-12 shadow-[0_0_30px_rgba(239,68,68,0.1)]"
-        >
+        <div className="w-full max-w-xl mx-auto bg-red-500/10 border border-red-500/30 p-8 rounded-xl flex flex-col items-center justify-center text-center mt-12 shadow-[0_0_30px_rgba(239,68,68,0.1)]">
           <div className="w-12 h-12 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center mb-4">
             <span className="text-xl font-bold">!</span>
           </div>
@@ -203,7 +210,7 @@ export function BlastRadius() {
               Hint: You need to run the ingestion pipeline to populate the graph first! Run <code>python autonomous_pipeline.py bootstrap</code> in the backend.
             </div>
           )}
-        </motion.div>
+        </div>
       )}
     </div>
   )

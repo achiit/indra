@@ -37,8 +37,8 @@ export function DomainPanel() {
     setLoading(true)
     setAnswer(null)
     try {
-      const brief = await generateMorningBrief(domainId || 'general')
-      setAnswer(brief)
+      const { briefing } = await generateMorningBrief(domainId || 'general')
+      setAnswer(briefing)
     } catch (e: any) {
       setAnswer("ERROR: Could not generate briefing. Ensure LLM provider is active.")
     } finally {

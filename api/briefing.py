@@ -1,5 +1,6 @@
 import os
 import asyncio
+from datetime import datetime, timezone
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -57,7 +58,13 @@ async def generate_briefing(req: BriefingRequest):
         # Clean up markdown
         if res.strip().startswith("```"):
             res = "\n".join(res.strip().split("\n")[1:-1])
-        return {"briefing": res.strip()}
+        return {
+            "briefing": res.strip(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+        }
     except Exception as e:
-        return {"briefing": f"    ╔════════════════════════════════════╗\n    ║   INDRA INTELLIGENCE BRIEF         ║\n    ║   ERROR GENERATING BRIEFING        ║\n    ╚════════════════════════════════════╝"}
+        return {
+            "briefing": f"    ╔════════════════════════════════════╗\n    ║   INDRA INTELLIGENCE BRIEF         ║\n    ║   ERROR GENERATING BRIEFING        ║\n    ╚════════════════════════════════════╝",
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+        }
 

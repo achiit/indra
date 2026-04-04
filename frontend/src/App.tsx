@@ -6,6 +6,7 @@ import { WarRoom } from '@/pages/WarRoom'
 import { DomainPanel } from '@/pages/DomainPanel'
 import { BlastRadius } from '@/pages/BlastRadius'
 import { Alerts } from '@/pages/Alerts'
+import { Briefing } from '@/pages/Briefing'
 import { PlaceholderView } from '@/pages/PlaceholderView'
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
           <Route path="/dashboard" element={<WarRoom />} />
           <Route path="/dashboard/:domainId" element={<DomainPanel />} />
           <Route path="/blast-radius" element={<BlastRadius />} />
+          <Route path="/briefing" element={<Briefing />} />
           <Route path="/alerts" element={<Alerts />} />
           
           <Route path="/watchlist" element={<PlaceholderView title="Watchlist" />} />
