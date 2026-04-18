@@ -1,14 +1,14 @@
 <div align="center">
-  <img src="frontend/public/logo.png" alt="INDRA Logo" width="200" />
+  <img src="./frontend/public/logo.png" alt="INDRA Logo" width="200" />
 
   <h1>INDRA – Intelligence Graph</h1>
   <p><strong>Autonomous Geopolitical Analysis Engine</strong></p>
 
   <p>
-    <a href="https://github.com/yourusername/indra/stargazers"><img src="https://img.shields.io/github/stars/yourusername/indra?style=for-the-badge&color=007AFF" alt="StarsBadge" /></a>
-    <a href="https://github.com/yourusername/indra/network/members"><img src="https://img.shields.io/github/forks/yourusername/indra?style=for-the-badge&color=007AFF" alt="ForksBadge" /></a>
-    <a href="https://github.com/yourusername/indra/issues"><img src="https://img.shields.io/github/issues/yourusername/indra?style=for-the-badge&color=007AFF" alt="IssuesBadge" /></a>
-    <a href="LICENSE"><img src="https://img.shields.io/github/license/yourusername/indra?style=for-the-badge&color=007AFF" alt="LicenseBadge" /></a>
+    <a href="https://github.com/achiit/indra/stargazers"><img src="https://img.shields.io/github/stars/achiit/indra?style=for-the-badge&color=007AFF" alt="StarsBadge" /></a>
+    <a href="https://github.com/achiit/indra/network/members"><img src="https://img.shields.io/github/forks/achiit/indra?style=for-the-badge&color=007AFF" alt="ForksBadge" /></a>
+    <a href="https://github.com/achiit/indra/issues"><img src="https://img.shields.io/github/issues/achiit/indra?style=for-the-badge&color=007AFF" alt="IssuesBadge" /></a>
+    <a href="LICENSE"><img src="https://img.shields.io/github/license/achiit/indra?style=for-the-badge&color=007AFF" alt="LicenseBadge" /></a>
   </p>
 
   > *"See the connections. Before they connect."*
@@ -37,16 +37,16 @@ Here is a glimpse into the professional-grade INDRA platform interface:
 <div align="center">
 
 ### Authentication & Entry
-<img src="frontend/public/login.png" alt="Login Interface" width="100%" style="border-radius:10px; margin-bottom:15px;"/>
+<img src="./frontend/public/login.png" alt="Login Interface" width="100%" style="border-radius:10px; margin-bottom:15px;"/>
 
 ### War Room & Graph Representation
-<img src="frontend/public/Screenshot%202026-04-18%20at%207.08.11%20PM.png" alt="War Room Main Map" width="100%" style="border-radius:10px; margin-bottom:15px;"/>
-<img src="frontend/public/Screenshot%202026-04-18%20at%207.08.26%20PM.png" alt="Graph Query Interface" width="100%" style="border-radius:10px; margin-bottom:15px;"/>
+<img src="./frontend/public/screenshot-1.png" alt="War Room Main Map" width="100%" style="border-radius:10px; margin-bottom:15px;"/>
+<img src="./frontend/public/screenshot-2.png" alt="Graph Query Interface" width="100%" style="border-radius:10px; margin-bottom:15px;"/>
 
 ### Intelligence Analytics & Causal Traversal
-<img src="frontend/public/Screenshot%202026-04-18%20at%207.08.47%20PM.png" alt="Metrics and Stats" width="100%" style="border-radius:10px; margin-bottom:15px;"/>
-<img src="frontend/public/Screenshot%202026-04-18%20at%207.08.53%20PM.png" alt="Relationship Analysis" width="100%" style="border-radius:10px; margin-bottom:15px;"/>
-<img src="frontend/public/Screenshot%202026-04-18%20at%207.08.58%20PM.png" alt="Advanced Filters" width="100%" style="border-radius:10px; margin-bottom:15px;"/>
+<img src="./frontend/public/screenshot-3.png" alt="Metrics and Stats" width="100%" style="border-radius:10px; margin-bottom:15px;"/>
+<img src="./frontend/public/screenshot-4.png" alt="Relationship Analysis" width="100%" style="border-radius:10px; margin-bottom:15px;"/>
+<img src="./frontend/public/screenshot-5.png" alt="Advanced Filters" width="100%" style="border-radius:10px; margin-bottom:15px;"/>
 
 </div>
 
@@ -81,7 +81,7 @@ The backend handles machine-learning models, semantic retrieval, and the knowled
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/indra.git
+git clone https://github.com/achiit/indra.git
 cd indra
 
 # Establish virtual environment
