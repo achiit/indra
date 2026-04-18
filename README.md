@@ -1,209 +1,66 @@
-# INDRA — Intelligence Graph
-### Autonomous Geopolitical Analysis Engine
+<div align="center">
+  <img src="frontend/public/logo.png" alt="INDRA Logo" width="200" />
 
-> "See the connections. Before they connect."
+  <h1>INDRA – Intelligence Graph</h1>
+  <p><strong>Autonomous Geopolitical Analysis Engine</strong></p>
 
-INDRA is a Graph-RAG intelligence system that **autonomously ingests geopolitical news** from GDELT, PIB, MEA, ORF, The Hindu, and more — builds a knowledge graph — and lets analysts query it in plain English with cited, graph-traversed answers.
+  <p>
+    <a href="https://github.com/yourusername/indra/stargazers"><img src="https://img.shields.io/github/stars/yourusername/indra?style=for-the-badge&color=007AFF" alt="StarsBadge" /></a>
+    <a href="https://github.com/yourusername/indra/network/members"><img src="https://img.shields.io/github/forks/yourusername/indra?style=for-the-badge&color=007AFF" alt="ForksBadge" /></a>
+    <a href="https://github.com/yourusername/indra/issues"><img src="https://img.shields.io/github/issues/yourusername/indra?style=for-the-badge&color=007AFF" alt="IssuesBadge" /></a>
+    <a href="LICENSE"><img src="https://img.shields.io/github/license/yourusername/indra?style=for-the-badge&color=007AFF" alt="LicenseBadge" /></a>
+  </p>
 
----
+  > *"See the connections. Before they connect."*
+</div>
 
-## What's in this folder
+<br />
 
-```
-indra/
-├── autonomous_pipeline.py   ← The brain — pulls data, builds graph, answers queries
-├── server.py                ← FastAPI backend (wraps the pipeline as an API)
-├── show_graph.py            ← Standalone graph visualizer (dark theme)
-├── requirements.txt         ← All Python dependencies
-├── .env.example             ← Copy this to .env and add your keys
-├── static/
-│   └── index.html           ← War-room UI (served by the FastAPI server)
-└── indra_data/              ← Auto-created — stores the knowledge graph
-```
+INDRA is a highly-advanced Graph-RAG intelligence system that **autonomously ingests geopolitical news** from dynamic sources including GDELT, PIB, MEA, ORF, and The Hindu. It automatically structures this unorganized data into a dense knowledge graph, enabling defense analysts and researchers to query the state of global affairs in plain English and receive cited, graph-traversed answers.
 
 ---
 
-## Setup (10 minutes total)
+## 🌟 Key Features
 
-### Step 1 — Check Python version
-```bash
-python --version
-```
-You need **Python 3.10 or higher**. If not:
-```bash
-# Mac
-brew install python@3.11
-
-# Windows — download from python.org/downloads
-# Check "Add to PATH" during install
-```
-
-### Step 2 — Create virtual environment
-```bash
-# Navigate into the indra folder
-cd indra
-
-# Create venv
-python -m venv venv
-
-# Activate it
-source venv/bin/activate       # Mac/Linux
-venv\Scripts\activate          # Windows
-```
-You should see `(venv)` in your terminal. **All commands from here run inside this.**
-
-### Step 3 — Install dependencies
-```bash
-pip install -r requirements.txt
-```
-This takes 3-5 minutes. Go do Step 4 while it runs.
-
-### Step 4 — Set up your API keys
-
-**Copy the example env file:**
-```bash
-cp .env.example .env
-```
-
-**Open `.env` and fill in:**
-
-1. **OpenAI key** (required):
-   - Go to: https://platform.openai.com/api-keys
-   - Click "Create new secret key"
-   - Add $5 credit if needed (GPT-4o-mini costs ~$0.01 per query)
-   - Paste it: `OPENAI_API_KEY=sk-...`
-
-2. **NewsData key** (optional but recommended — free):
-   - Go to: https://newsdata.io/register
-   - Sign up (30 seconds, no credit card)
-   - Copy your API key
-   - Paste it: `NEWSDATA_API_KEY=...`
+- **Autonomous ETL Pipelines:** Real-time synchronization leveraging NLP algorithms to derive entity-relation schemas on-the-fly.
+- **Blast Radius Analysis:** Causal path rendering, joint probability math, and maximum-depth graph traversal to predict geometric geopolitical ripples.
+- **Graph-RAG Answers:** Integrates high-performance vector search combined with Graph Machine Learning techniques for optimal context synthesis.
+- **Domain Alerts:** Active state tracking with a dynamically decaying subgraph architecture to prune stale geopolitical assumptions and surface rapid alerts.
+- **Immersive War Room UI:** Interactive 2D/3D knowledge graph, domain panels, interactive Q&A prompts, and robust visualization modules powered by React 18 & Framer Motion.
 
 ---
 
-## Running INDRA
+## 📸 Platform Showcase
 
-### Option A — Full web app (recommended for demo)
+Here is a glimpse into the professional-grade INDRA platform interface:
 
-**Terminal 1 — Start the server:**
-```bash
-uvicorn server:app --reload --port 8000
-```
+<div align="center">
 
-**Terminal 2 — Bootstrap the graph (first time only):**
-```bash
-python autonomous_pipeline.py bootstrap
-```
-This pulls the last 7 days from all sources. Takes 3-5 minutes.
+### Authentication & Entry
+<img src="frontend/public/login.png" alt="Login Interface" width="100%" style="border-radius:10px; margin-bottom:15px;"/>
 
-**Open your browser:**
-```
-http://localhost:8000
-```
+### War Room & Graph Representation
+<img src="frontend/public/Screenshot%202026-04-18%20at%207.08.11%20PM.png" alt="War Room Main Map" width="100%" style="border-radius:10px; margin-bottom:15px;"/>
+<img src="frontend/public/Screenshot%202026-04-18%20at%207.08.26%20PM.png" alt="Graph Query Interface" width="100%" style="border-radius:10px; margin-bottom:15px;"/>
 
-You'll see the war-room UI. Once bootstrap completes, the graph appears and you can query it.
+### Intelligence Analytics & Causal Traversal
+<img src="frontend/public/Screenshot%202026-04-18%20at%207.08.47%20PM.png" alt="Metrics and Stats" width="100%" style="border-radius:10px; margin-bottom:15px;"/>
+<img src="frontend/public/Screenshot%202026-04-18%20at%207.08.53%20PM.png" alt="Relationship Analysis" width="100%" style="border-radius:10px; margin-bottom:15px;"/>
+<img src="frontend/public/Screenshot%202026-04-18%20at%207.08.58%20PM.png" alt="Advanced Filters" width="100%" style="border-radius:10px; margin-bottom:15px;"/>
+
+</div>
 
 ---
 
-### Option B — Command line only
+## 🏗 System Architecture
 
-```bash
-# Step 1: Load data (run once)
-python autonomous_pipeline.py bootstrap
+The ecosystem relies on an integrated duality between heavy-compute NLP pipelines and high-framerate immersive browser visualizations.
 
-# Step 2: Query it
-python autonomous_pipeline.py query "How is China's debt diplomacy affecting India's neighborhood policy?"
+- **Frontend:** React 18, Vite, TypeScript, Tailwind CSS, shadcn/ui, Framer Motion, Recharts, react-force-graph-2d, Zustand.
+- **Backend (API):** Python, FastAPI, LightRAG, spaCy, REBEL (Local Models), and Multi-LLM Routing (Gemini/Groq/OpenAI).
+- **Database:** Local Network Stores / SQLite embeddings / Postgres routing – managed securely behind API barricades.
 
-# Step 3: See the graph
-python show_graph.py
-```
-
----
-
-## Data sources (all autonomous, no manual input)
-
-| Source | What it provides | Update frequency | API key? |
-|--------|-----------------|-----------------|---------|
-| **GDELT 2.0** | Global geopolitical news in 100+ languages | Every 15 minutes | None needed |
-| **PIB Defence** | Indian govt defence press releases | Live RSS | None needed |
-| **PIB MEA** | Ministry of External Affairs statements | Live RSS | None needed |
-| **ORF** | Observer Research Foundation analysis | Live RSS | None needed |
-| **The Hindu** | International news, India perspective | Live RSS | None needed |
-| **Indian Express** | Foreign affairs coverage | Live RSS | None needed |
-| **DD News** | Doordarshan official news | Live RSS | None needed |
-| **NewsData.io** | India-filtered news, 2000 articles/day | Hourly | Free signup |
-
----
-
-## Keep the graph live (optional)
-
-To keep INDRA continuously updated (syncs every 15 minutes matching GDELT's update cycle):
-```bash
-python autonomous_pipeline.py watch
-```
-Run this in a background terminal. Ctrl+C to stop.
-
----
-
-## Query modes explained
-
-When querying through the UI or CLI, you can choose 3 modes:
-
-| Mode | What it does | Best for |
-|------|-------------|---------|
-| **Hybrid** | Combines graph traversal + vector search | General questions (default) |
-| **Global** | Uses the full graph structure | "What are the major themes?" |
-| **Local** | Focuses on specific entities | "Tell me about CPEC" |
-
----
-
-## Demo script (for presentations)
-
-1. **Open** `http://localhost:8000`
-2. **Say:** *"Right now, analysts spend 4 hours manually connecting news articles. INDRA does it in seconds."*
-3. **Show** the stats — articles ingested, entities in graph
-4. **Type:** *"How is Pakistan's economic instability affecting India's western border security?"*
-5. **Show** the graph lighting up + the cited answer
-6. **Type second query:** *"What are the second-order effects if the Quad alliance weakens?"*
-7. **Closer:** *"This runs on open-source models and can be deployed inside a government data center. Zero data leaves Indian soil."*
-
----
-
-## Troubleshooting
-
-**"No graph yet" error:**
-```bash
-python autonomous_pipeline.py bootstrap
-```
-Wait 3-5 minutes for it to complete.
-
-**OpenAI rate limit error:**
-The pipeline has built-in throttling. If you hit limits, reduce batch size:
-```python
-# In autonomous_pipeline.py, change:
-await asyncio.sleep(0.2)   # → await asyncio.sleep(1.0)
-```
-
-**GDELT returns no results:**
-GDELT sometimes has downtime. The RSS feeds will still work. Check: https://api.gdeltproject.org
-
-**Port 8000 already in use:**
-```bash
-uvicorn server:app --reload --port 8001
-# Then open: http://localhost:8001
-```
-
-**Windows venv activation fails:**
-```bash
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-venv\Scripts\activate
-```
-
----
-
-## Architecture overview
-
-```
+```text
 LIVE SOURCES          PIPELINE              STORAGE           QUERY
 ─────────────         ────────              ───────           ─────
 GDELT (15min)  ──┐
@@ -216,4 +73,71 @@ NewsData API   ──┘    LLM extract)         (graphml +        answer
 
 ---
 
-Built by 21Coders | India Innovates 2026
+## 🚀 Quickstart & Setup Guide
+
+### 1. Backend API (Python FastAPI)
+
+The backend handles machine-learning models, semantic retrieval, and the knowledge graph persistence.
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/indra.git
+cd indra
+
+# Establish virtual environment
+python -m venv venv
+source venv/bin/activate       # For Windows: venv\Scripts\activate
+
+# Install core dependencies
+pip install -r requirements.txt
+
+# Create .env from template and add your OpenAI and/or NewsData keys
+cp .env.example .env
+
+# Launch the FastAPI Core
+uvicorn server:app --reload --port 8000
+```
+*(The backend defaults to port `8000`. You can optionally bootstrap initial graph data by running `python autonomous_pipeline.py bootstrap` in another terminal!)*
+
+### 2. Frontend Interface (Vite + React)
+
+The frontend war-room needs Node.js and npm (or Bun/Yarn). 
+
+```bash
+# Navigate to frontend subsystem
+cd frontend
+
+# Install Node modules
+npm install
+
+# Build & Boot Development Server
+npm run dev
+```
+*(The frontend will automatically bind to `http://localhost:5173` and start listening to API payloads on `8000`. Set `VITE_USE_MOCK=false` inside `frontend/.env.development` if you wish to use live LLM queries instead of the pre-built mock interfaces!)*
+
+---
+
+## 📡 Live Data Sourcing
+
+No manual intervention required. Data is dynamically ingested to synthesize emergent narratives.
+
+| Data Origin       | Contribution Spectrum                     | Sync Lifecycle      | Authorization |
+|-------------------|-------------------------------------------|---------------------|---------------|
+| **GDELT 2.0**     | Global geopolitical ripples (100+ langs) | Every 15 minutes    | Unrestricted  |
+| **PIB Defence**   | Domestic sovereign defence releases      | Real-time RSS       | Unrestricted  |
+| **The Hindu**     | Geopolitical journalism & OP-Ed pieces   | Real-time RSS       | Unrestricted  |
+| **NewsData.io**   | Rapid-volume article feeds               | Hourly              | Free API Key  |
+| **Custom PDFs**   | Classified intelligence report parsing   | On-Demand Uploads   | Local Machine |
+
+---
+
+## ⚖️ License & Ethical Declaration
+
+This platform is distributed under the **[MIT License](LICENSE)** framework.
+
+INDRA is intended for analytical intelligence and geopolitical research enhancement. Please remain mindful of the capabilities generated by autonomous Large Language Models tracing complex networks. **You retain sole jurisdiction over any actions derived from the data presented by this system.** 
+
+---
+<div align="center">
+  <i>Initiated & Architected by <strong>21Coders | India Innovates 2026</strong>.</i>
+</div>
