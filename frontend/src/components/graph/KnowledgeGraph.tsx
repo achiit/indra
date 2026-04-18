@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
-import ForceGraph2D from 'react-force-graph-2d'
+import ForceGraph3D from 'react-force-graph-3d'
+import * as THREE from 'three'
 import { type GraphData, type GraphNode, type GraphLink } from '@/types/indra'
 import { DOMAIN_COLORS, getConfidenceColor } from '@/lib/utils'
 import { applyFlag } from '@/lib/flags'
@@ -80,21 +81,28 @@ export function KnowledgeGraph({ data, onNodeClick, highlightedNodeId, focusMode
       }
     }) as GraphNode[]
 
-    const graphLinks = data.edges.map((e: any) => ({
-      ...e,
-      source: e.source ?? e.from,
-      target: e.target ?? e.to,
-      color: e.stale ? '#3f3f46' : getConfidenceColor(e.confidence || 0.6),
-    })) as GraphLink[]
+    const graphLinks = data.edges.map((e: any) => {
+      const conf = e.confidence || 0.5;
+      let c = '#3A4A5A'; // low - dim
+      if (conf > 0.7) c = '#00C896'; // high - teal
+      else if (conf > 0.4) c = '#EF9F27'; // med - amber
+
+      return ({
+        ...e,
+        source: e.source ?? e.from,
+        target: e.target ?? e.to,
+        color: e.stale ? '#3f3f46' : c,
+      })
+    }) as GraphLink[]
 
     const linkColorFn = (l: GraphLink) => {
-      const base = (l as GraphLink).color || '#3f3f46'
+      const base = (l as GraphLink).color || '#00C896'
       if (!focusMode?.active) return base
       const s = ((l as any).source?.id ?? (l as any).source) as string
       const t = ((l as any).target?.id ?? (l as any).target) as string
       const both = focusMode.expandedIds.has(s) && focusMode.expandedIds.has(t)
       if (both) return base
-      return 'rgba(39,39,42,0.12)'
+      return 'rgba(58, 74, 90, 0.15)'
     }
 
     return { runData: { nodes: graphNodes, links: graphLinks }, linkColorFn }
@@ -102,7 +110,9 @@ export function KnowledgeGraph({ data, onNodeClick, highlightedNodeId, focusMode
 
   useEffect(() => {
     if (fgRef.current && runData.nodes.length > 0) {
-      setTimeout(() => fgRef.current?.zoomToFit(200, 50), 100)
+      fgRef.current.d3Force('charge').strength(-400)
+      fgRef.current.d3Force('link').distance(80)
+      setTimeout(() => fgRef.current?.zoomToFit(400, 50), 100)
     }
   }, [runData])
 
@@ -117,69 +127,98 @@ export function KnowledgeGraph({ data, onNodeClick, highlightedNodeId, focusMode
   return (
     <div ref={containerRef} className="w-100 h-100 position-relative rounded-3 overflow-hidden border border-secondary" style={{ backgroundColor: '#0A0A0F' }}>
       {dimensions.width > 0 && (
-        <ForceGraph2D
+        <ForceGraph3D
           ref={fgRef}
           width={dimensions.width}
           height={dimensions.height}
           graphData={runData}
-          nodeLabel="label"
-          nodeRelSize={4}
+          backgroundColor="#0A0A0F"
           linkColor={linkColorFn}
           linkWidth={(l) => {
-            if (!focusMode?.active) return ((l as GraphLink).confidence || 0.5) * 2
+            if (!focusMode?.active) return 1.5
             const s = ((l as any).source?.id ?? (l as any).source) as string
             const t = ((l as any).target?.id ?? (l as any).target) as string
-            const both = focusMode.expandedIds.has(s) && focusMode.expandedIds.has(t)
-            return both ? ((l as GraphLink).confidence || 0.5) * 2.4 : 0.35
+            return (focusMode.expandedIds.has(s) && focusMode.expandedIds.has(t)) ? 3 : 0.5
           }}
+          linkOpacity={0.9}
           linkLabel={(l) =>
-            `${(l as any).source.id || (l as any).source} ➔ ${(l as any).label || (l as any).type} ➔ ${(l as any).target.id || (l as any).target}\nConfidence: ${(((l as any).confidence || 0) * 100).toFixed(0)}%`
+            `${(l as any).source.id || (l as any).source} \u2794 ${(l as any).label || (l as any).type} \u2794 ${(l as any).target.id || (l as any).target}\nConfidence: ${(((l as any).confidence || 0) * 100).toFixed(0)}%`
           }
           linkDirectionalParticles={(l) => {
             if (!focusMode?.active) return 2
             const s = ((l as any).source?.id ?? (l as any).source) as string
             const t = ((l as any).target?.id ?? (l as any).target) as string
-            return focusMode.expandedIds.has(s) && focusMode.expandedIds.has(t) ? 2 : 0
+            return focusMode.expandedIds.has(s) && focusMode.expandedIds.has(t) ? 6 : 0
           }}
-          linkDirectionalParticleSpeed={(l) => ((l as GraphLink).confidence || 0.5) * 0.01}
-          onNodeClick={(node) => onNodeClick?.(node as GraphNode)}
+          linkDirectionalParticleSpeed={0.004}
+          linkDirectionalParticleWidth={2}
+          onNodeClick={(node) => {
+            const distance = 80;
+            const distRatio = 1 + distance / Math.hypot((node as any).x || 0, (node as any).y || 0, (node as any).z || 0);
+            fgRef.current?.cameraPosition(
+              { x: (node as any).x * distRatio, y: (node as any).y * distRatio, z: (node as any).z * distRatio },
+              node,
+              1000
+            );
+            onNodeClick?.(node as GraphNode)
+          }}
           enableNodeDrag
-          enableZoomInteraction
-          enablePanInteraction
-          backgroundColor="#0A0A0F"
-          nodeCanvasObject={(node, ctx, globalScale) => {
+          enableNavigationControls
+          nodeThreeObject={(node) => {
             const id = (node as GraphNode).id
-            const size = node.val || 5
+            const size = (node as any).val || 4
             const alpha = nodeAlpha(id)
             const pulse = nodePulse(id)
             const hl = id === highlightedNodeId
-            const pulseR = pulse ? 1 + 0.22 * Math.sin(pulseTick * 0.12) : 1
+            const isHighlighted = pulse || hl || focusMode?.expandedIds.has(id)
+            const pulseR = pulse ? 1 + 0.15 * Math.sin(pulseTick * 0.12) : 1
+            const color = hl ? '#00ffff' : ((node as any).color || '#6B7280')
 
-            ctx.save()
-            ctx.globalAlpha = alpha
+            const sphere = new THREE.Mesh(
+              new THREE.SphereGeometry(size * (pulse ? pulseR : 1), 16, 16),
+              new THREE.MeshLambertMaterial({
+                color: new THREE.Color(color),
+                transparent: true,
+                opacity: alpha,
+              })
+            );
 
             if (pulse) {
-              ctx.beginPath()
-              ctx.arc(node.x!, node.y!, size * 2.4 * pulseR, 0, 2 * Math.PI, false)
-              ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)'
-              ctx.lineWidth = 1.5 / globalScale
-              ctx.stroke()
+              const ring = new THREE.Mesh(
+                new THREE.RingGeometry(size + 2, size + 4, 32),
+                new THREE.MeshBasicMaterial({
+                  color: new THREE.Color('#ffffff'),
+                  transparent: true,
+                  opacity: 0.6,
+                  side: THREE.DoubleSide,
+                })
+              );
+              sphere.add(ring);
             }
 
-            ctx.beginPath()
-            ctx.arc(node.x!, node.y!, size * (hl ? 1.15 : 1), 0, 2 * Math.PI, false)
-            ctx.fillStyle = hl ? '#00ffff' : (node.color || '#6B7280')
-            ctx.fill()
+            if (isHighlighted || !focusMode?.active) {
+              const canvas = document.createElement("canvas");
+              canvas.width = 256;
+              canvas.height = 64;
+              const ctx = canvas.getContext("2d")!;
+              ctx.fillStyle = "rgba(10, 22, 40, 0.85)";
+              ctx.roundRect(4, 4, canvas.width - 8, canvas.height - 8, 8);
+              ctx.fill();
+              ctx.fillStyle = color;
+              ctx.font = "bold 22px Arial";
+              ctx.textAlign = "center";
+              ctx.fillText((node as GraphNode).label || id, 128, 40);
 
-            const label = (node as GraphNode).label
-            const fontSize = Math.max(5, 10 / globalScale)
-            ctx.font = `${fontSize}px Inter, sans-serif`
-            ctx.textAlign = 'center'
-            ctx.textBaseline = 'middle'
-            ctx.fillStyle = hl || pulse ? '#e4e4e7' : 'rgba(255,255,255,0.88)'
-            ctx.fillText(label, node.x!, node.y! + size + 2 + fontSize / 2)
+              const texture = new THREE.CanvasTexture(canvas);
+              const label = new THREE.Sprite(
+                new THREE.SpriteMaterial({ map: texture, transparent: true })
+              );
+              label.scale.set(40, 10, 1);
+              label.position.set(0, size + 8, 0);
+              sphere.add(label);
+            }
 
-            ctx.restore()
+            return sphere;
           }}
         />
       )}
@@ -188,13 +227,13 @@ export function KnowledgeGraph({ data, onNodeClick, highlightedNodeId, focusMode
         <h4 className="text-muted text-uppercase fw-semibold mb-2 tracking-wider" style={{ fontSize: '0.625rem' }}>Confidence Legend</h4>
         <div className="d-flex flex-column gap-2" style={{ fontSize: '0.75rem' }}>
           <div className="d-flex align-items-center gap-2">
-            <span className="rounded-circle bg-success flex-shrink-0" style={{ width: '8px', height: '8px' }} /> High (&gt;0.7)
+            <span className="rounded-circle flex-shrink-0" style={{ width: '8px', height: '8px', backgroundColor: '#00C896' }} /> High (&gt;0.7)
           </div>
           <div className="d-flex align-items-center gap-2">
-            <span className="rounded-circle bg-warning flex-shrink-0" style={{ width: '8px', height: '8px' }} /> Med (0.4–0.7)
+            <span className="rounded-circle flex-shrink-0" style={{ width: '8px', height: '8px', backgroundColor: '#EF9F27' }} /> Med (0.4–0.7)
           </div>
           <div className="d-flex align-items-center gap-2">
-            <span className="rounded-circle bg-orange flex-shrink-0" style={{ width: '8px', height: '8px', backgroundColor: '#fb923c' }} /> Low (0.15–0.4)
+            <span className="rounded-circle flex-shrink-0" style={{ width: '8px', height: '8px', backgroundColor: '#3A4A5A' }} /> Low (0.15–0.4)
           </div>
           <div className="d-flex align-items-center gap-2">
             <span className="rounded-circle bg-secondary flex-shrink-0" style={{ width: '8px', height: '8px' }} /> Stale (&lt;0.15)
